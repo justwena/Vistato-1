@@ -6,13 +6,13 @@ import 'firebase/compat/storage'; // Import Firebase Storage
 
 // firebaseConfig.js
 export const firebaseConfig = {
-  apiKey: "AIzaSyBJBOOWRke9QqMONWlm8-emQEVFlaw6imc",
-  authDomain: "capstone-4e6d8.firebaseapp.com",
-  databaseURL: "https://capstone-4e6d8-default-rtdb.firebaseio.com",
-  projectId: "capstone-4e6d8",
-  storageBucket: "capstone-4e6d8.appspot.com",
-  messagingSenderId: "408999186253",
-  appId: "1:408999186253:android:da0ed4fa6591e988d2f104",
+  apiKey: "AIzaSyBG2St4s8g1UZC3p9r16S5kzDoLjkB7X5k",
+  authDomain: "food2go-44539.firebaseapp.com",
+  databaseURL: "https://food2go-44539-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "food2go-44539",
+  storageBucket: "gs://food2go-44539.appspot.com",
+  messagingSenderId: "844894233705" ,
+  appId: "1:844894233705:android:0a77e59d1f12b2cda1eef8",
 };
 
 if (!firebase.apps.length) {

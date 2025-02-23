@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/vista-logo.png",
         "backgroundColor": "#FFE8E8"
-      }
+      },
+      "package": "com.paww.vistaapp"
     },
     "web": {
       "favicon": "./assets/vista-white.png"

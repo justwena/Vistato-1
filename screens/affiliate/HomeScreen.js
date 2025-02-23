@@ -7,15 +7,30 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Alert,
+  TextInput,
+  Button,
+  Linking,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "../../firebase";
+
+import { getDatabase, ref as dbRef, set } from "firebase/database"; // If using Realtime Database
 
 const HomeScreen = () => {
   const [facilitiesCount, setFacilitiesCount] = useState(0);
   const [pendingBookingsCount, setPendingBookingsCount] = useState(0);
   const [currentUserAffiliateId, setCurrentUserAffiliateId] = useState("");
   const [billReminder, setBillReminder] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const database = getDatabase(); // Firebase Realtime Database
+  const [imageInputUrl, setImageInputUrl] = useState("");
+  const [entranceUrl, setEntranceUrl] = useState("");
+  const [seasideUrl, setSeasideUrl] = useState("");
+  const [endRouteUrl, setEndRouteUrl] = useState("");
+
 
   const setupListeners = (affiliateId) => {
     const setupBookingsListener = () => {
@@ -91,6 +106,46 @@ const HomeScreen = () => {
 
     fetchCurrentUserAffiliateId();
   }, []);
+  const promptForImageUrl = () => {
+    Alert.alert(
+      "How to Upload a 360° View",
+      "1. Upload your 360° panorama on Panoraven\n2. Copy the generated link\n\nClick 'Go to Website' to proceed.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Go to Website", onPress: () => Linking.openURL("https://panoraven.com/en/share-360-photo") },
+        { text: "OK", onPress: () => setModalVisible(true) }
+      ]
+    );
+  };
+
+  const uploadImageUrls = async () => {
+    if (!entranceUrl || !seasideUrl || !endRouteUrl) {
+      Alert.alert("Error", "All fields must be filled.");
+      return;
+    }
+
+    try {
+      if (!currentUserAffiliateId) {
+        throw new Error("Affiliate ID is missing.");
+      }
+
+      const dbImageRef = dbRef(database, `affiliates/${currentUserAffiliateId}/360view`);
+      await set(dbImageRef, {
+        entrance: entranceUrl,
+        seaside: seasideUrl,
+        endRoute: endRouteUrl,
+      });
+
+      Alert.alert("Success", "360° View links uploaded successfully!");
+      setEntranceUrl("");
+      setSeasideUrl("");
+      setEndRouteUrl("");
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      Alert.alert("Error", "Failed to upload the links.");
+    }
+  };
 
   useEffect(() => {
     if (currentUserAffiliateId) {
@@ -159,6 +214,7 @@ const HomeScreen = () => {
               tintColor={"#4ab550"}
             />
           </View>
+    
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -189,6 +245,39 @@ const HomeScreen = () => {
           </View>
         )}
       </View>
+      <Button title="Upload 360° View" onPress={promptForImageUrl} />
+      <Modal visible={modalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <Text style={styles.label}>Entrance URL:</Text>
+          <TextInput
+            style={styles.input}
+            value={entranceUrl}
+            onChangeText={setEntranceUrl}
+            placeholder="Enter entrance view URL"
+          />
+
+          <Text style={styles.label}>Seaside URL:</Text>
+          <TextInput
+            style={styles.input}
+            value={seasideUrl}
+            onChangeText={setSeasideUrl}
+            placeholder="Enter seaside view URL"
+          />
+
+          <Text style={styles.label}>End Route URL:</Text>
+          <TextInput
+            style={styles.input}
+            value={endRouteUrl}
+            onChangeText={setEndRouteUrl}
+            placeholder="Enter end route view URL"
+          />
+  <View style={{ marginTop: 20 }}></View>
+          <Button title="Upload Links" onPress={uploadImageUrls} />
+          <View style={{ marginTop: 10 }}>
+          <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -222,6 +311,12 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 10,
   },
+  modalContainer: { flex: 1, padding: 20, justifyContent: "center" },
+  modalContent: { width: 300, backgroundColor: "white", padding: 20, borderRadius: 10, alignItems: "center" },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  input: { width: "100%", height: 40, borderColor: "gray", borderWidth: 1, marginBottom: 10, paddingHorizontal: 10, borderRadius: 5 },
+  label: { fontSize: 16, fontWeight: "bold", marginTop: 10 },
+  input: { borderWidth: 1, padding: 10, marginTop: 5, borderRadius: 5 },
   touchableContent: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -14,6 +14,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import firebase from "../firebase.js";
+import { getDatabase, ref as dbRef, get } from "firebase/database";
+
+
 
 const CustomHeader = ({ title, navigation }) => (
   <View style={styles.header}>
@@ -28,7 +31,9 @@ const CustomHeader = ({ title, navigation }) => (
   </View>
 );
 
-const ProfileContainer = ({ affiliate, handleAddressPress }) => (
+
+
+const ProfileContainer = ({ affiliate, handleAddressPress, handleView360 }) => (
   <View style={styles.profileContainer}>
     <Image
       source={require("../assets/profile-picture.png")}
@@ -43,7 +48,17 @@ const ProfileContainer = ({ affiliate, handleAddressPress }) => (
         }
         style={styles.profilePicture}
       />
-      <Text style={styles.usernameText}>{affiliate.username}</Text>
+      <View style={styles.usernameContainer}>
+        <Text style={styles.usernameText}>{affiliate.username}</Text>
+
+        {/* New Button to View 360° Image */}
+        <TouchableOpacity
+          style={styles.view360Button}
+          onPress={() => handleView360(affiliate)}
+        >
+          <Text style={styles.view360ButtonText}>View 360°</Text>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity
         onPress={handleAddressPress}
         style={styles.addressContainer}
@@ -62,7 +77,9 @@ const ProfileContainer = ({ affiliate, handleAddressPress }) => (
       </TouchableOpacity>
     </View>
   </View>
+  
 );
+
 
 const AffiliateDetailsScreenContent = ({ route, navigation }) => {
   const { affiliate, selectedFacilityId } = route.params;
@@ -144,7 +161,75 @@ const AffiliateDetailsScreenContent = ({ route, navigation }) => {
       affiliate: affiliate,
     });
   };
+  // const handleView360 = async () => {
+  //   if (!affiliate.affiliateId) {
+  //     Alert.alert("Error", "Affiliate ID is missing.");
+  //     return;
+  //   }
+  
+  //   try {
+  //     const database = getDatabase();
+  //     const dbImageRef = dbRef(database, `affiliates/${affiliate.affiliateId}/360view`);
+  
+  //     const snapshot = await get(dbImageRef);
+  //     if (snapshot.exists()) {
+  //       // const { entrance, seaside, endRoute } = snapshot.val(); // Get all 360° URLs
+  //       const data = snapshot.val();
+  //       console.log("Fetched 360° Data:", data); // Log the full data object
+  
+  //       if (!entrance && !seaside && !endRoute) {
+  //         Alert.alert("No 360° Images", "This affiliate has not uploaded any 360° images yet.");
+  //         return;
+  //       }
+  
+  //       // Navigate and pass all image URLs to the Panorama Viewer
+  //       navigation.navigate("PanoramaViewer", { entrance, seaside, endRoute });
+  //     } else {
+  //       Alert.alert("No 360° Image", "This affiliate has not uploaded a 360° image yet.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching 360° images from database:", error);
+  //     Alert.alert("Error", "Failed to retrieve 360° images.");
+  //   }
+  // };
+  
 
+  const handleView360 = async () => {
+    if (!affiliate.affiliateId) {
+      Alert.alert("Error", "Affiliate ID is missing.");
+      return;
+    }
+  
+    try {
+      const database = getDatabase();
+      const dbImageRef = dbRef(database, `affiliates/${affiliate.affiliateId}/360view`);
+  
+      const snapshot = await get(dbImageRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        console.log("Fetched 360° Data:", data); // Log the full data object
+  
+        const { entrance, seaside, endRoute } = data; // Extract values
+        console.log("Entrance URL:", entrance);
+        console.log("Seaside URL:", seaside);
+        console.log("End Route URL:", endRoute);
+  
+        if (!entrance && !seaside && !endRoute) {
+          Alert.alert("No 360° Images", "This affiliate has not uploaded any 360° images yet.");
+          return;
+        }
+  
+        // Navigate and pass all image URLs to the Panorama Viewer
+        navigation.navigate("PanoramaViewer", { entrance, seaside, endRoute });
+      } else {
+        Alert.alert("No 360° Image", "This affiliate has not uploaded a 360° image yet.");
+      }
+    } catch (error) {
+      console.error("Error fetching 360° images from database:", error);
+      Alert.alert("Error", "Failed to retrieve 360° images.");
+    }
+  };
+  
   return (
     <SafeAreaView style={styles.screen}>
       <CustomHeader title={affiliate.username} navigation={navigation} />
@@ -157,6 +242,7 @@ const AffiliateDetailsScreenContent = ({ route, navigation }) => {
         <ProfileContainer
           affiliate={affiliate}
           handleAddressPress={handleAddressPress}
+          handleView360={handleView360} // Pass handleView360 here
         />
 
         <View style={styles.descriptionContainer}>
@@ -329,6 +415,28 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  usernameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "90%",
+    marginTop: 10,
+    left: 15,
+  },
+  view360Button: {
+    backgroundColor: "#088B9C",
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  view360ButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  
+  
   descriptionText: {
     fontSize: 15,
     textAlign: "justify",

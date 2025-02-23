@@ -21,7 +21,7 @@ import SubscriptionScreen from './screens/admin/SubscriptionScreen';
 
 //sa customer folder to goiz
 import BookingHistoryScreen from './screens/Customer/BookingHistoryScreen';
-import CustomerHome from './screens/Customer/CustomerHome';  
+import CustomerHome from './screens/Customer/CustomerHome';
 import EditCustomerProfile from './screens/Customer/EditCustomerProfile';
 
 // affilliate folder to
@@ -35,6 +35,8 @@ import SalesReportScreen from './screens/affiliate/SalesReportScreen';
 import LogsScreen from './screens/affiliate/AffiliateLogsScreen';
 import FacilityReviewsScreen from './screens/affiliate/FacilityReviewsScreen';
 import EditProfileScreen from './screens/affiliate/EditProfileScreen';
+import FacilityBookingScreen from './screens/Customer/FacilityBookingScreen';
+import PanoramaViewer from "../vistato---Copy-2-/screens/PanoramaViewer";
 
 // guest folder to
 import GuestHome from './screens/guest/GuestHome'; 
@@ -109,8 +111,9 @@ const App = () => {
           component={AffiliateDetailsScreen}
           options={{ headerShown: false }}
         />
+               <Stack.Screen name="PanoramaViewer" component={PanoramaViewer} />
 
-{/* UNDER CUSTOMEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR FOLDER NA ITO GUYS*/}
+{/* UNDER CUSTOMEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR FOLDER NA ITO GUYS*/}
 
 
         <Stack.Screen
@@ -132,7 +135,7 @@ const App = () => {
           options={{ headerShown: false }}
         />
 
-{/* UNDER GUESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT FOLDER NA ITO GUYS*/}
+{/* UNDER GUESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT FOLDER NA ITO GUYS*/}
 
         <Stack.Screen
           name="GuestHome"
@@ -226,6 +229,12 @@ const App = () => {
           component={EditAdminProfile}
           options={{ headerShown: false }}
         />
+                <Stack.Screen
+          name="FacilityBooking"
+          component={FacilityBookingScreen}
+          options={{ headerShown: false }}
+        />
+
 
 <Stack.Screen
           name="Subscription"

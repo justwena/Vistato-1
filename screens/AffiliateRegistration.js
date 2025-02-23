@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,71 +12,27 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
-  Image,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "../firebase";
 
-// Get screen width and height
-const { width, height } = Dimensions.get("window");
-
-
 const AffiliateRegistration = ({ navigation }) => {
+  const [affiliateType, setAffiliateType] = useState("hotel");
   const [username, setUsername] = useState("");
-  const [contactNo, setContactNo] = useState("");
   const [email, setEmail] = useState("");
+  const [contactNo, setContactNo] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [confirmSecureTextEntry, setConfirmSecureTextEntry] = useState(true);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [usernameError, setUsernameError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [affiliateType, setAffiliateType] = useState(null);  // State for affiliate type
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("blur", () => {
-      setUsername("");
-      setContactNo("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      setError(null);
-      setLoading(false);
-      setUsernameError("");
-      setEmailError("");
-      setPasswordError("");
-      setConfirmPasswordError("");
-      setAffiliateType(null); // Reset affiliate type when component is unmounted
-    });
-
-    return unsubscribe;
-  }, [navigation]);
-
-  const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
-    return passwordRegex.test(password);
-  };
-
-  const checkUsernameExists = async (username) => {
-    const snapshot = await firebase.database().ref("customers").orderByChild("username").equalTo(username).once("value");
-    return snapshot.exists();
-  };
-
-  const checkEmailExists = async (email) => {
-    const snapshot = await firebase.database().ref("customers").orderByChild("email").equalTo(email).once("value");
-    return snapshot.exists();
-  };
-
-  const handleRegister = async () => {
+  const handleAffiliateRegister = async () => {
     try {
       setLoading(true);
 
-      if (!username || !contactNo || !email || !password || !confirmPassword) {
+      if (!username || !email || !contactNo || !password || !confirmPassword) {
         setError("Please fill in all fields.");
         setLoading(false);
         return;
@@ -87,49 +43,20 @@ const AffiliateRegistration = ({ navigation }) => {
         setLoading(false);
         return;
       }
-      if (!validatePassword(password)) {
-        setError("Password must be at least 6 characters long and contain both letters and numbers.");
-        setLoading(false);
-        return;
-      }
 
-      // Clear all previous errors
-      setUsernameError("");
-      setEmailError("");
-      setPasswordError("");
-      setConfirmPasswordError("");
+      const response = await firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password);
 
-      const usernameExists = await checkUsernameExists(username);
-      if (usernameExists) {
-        setUsernameError("Username is not available");
-        setLoading(false);
-        return;
-      }
-
-      const emailExists = await checkEmailExists(email);
-      if (emailExists) {
-        setEmailError("Email already used");
-        setLoading(false);
-        return;
-      }
-
-      if (!affiliateType) {
-        setError("Please select an affiliate type (Hotel or Resorts).");
-        setLoading(false);
-        return;
-      }
-
-      const response = await firebase.auth().createUserWithEmailAndPassword(email, password);
-
-      await firebase.database().ref(`customers/${response.user.uid}`).set({
+      await firebase.database().ref(`affiliates/${response.user.uid}`).set({
         username,
         contactNo,
         email,
-        password,
-        affiliateType,  // Save affiliate type if chosen
+        affiliateType,
       });
 
-      console.log("Customer registered successfully!", response.user.uid);
+      console.log("Affiliate registered successfully!", response.user.uid);
+
       setLoading(false);
 
       Alert.alert(
@@ -141,42 +68,28 @@ const AffiliateRegistration = ({ navigation }) => {
             onPress: () => navigation.navigate("Login"),
           },
         ],
-        { cancelable: false }
+        { cancelable: false },
       );
     } catch (error) {
+      // console.error("Error registering affiliate:", error.message);
       setLoading(false);
       setError(error.message);
     }
   };
 
-  const handleNavigateToLoginScreen = () => {
+  const handleNavigateToLogin = () => {
     navigation.navigate("Login");
-  };
-
-  const getErrorMessage = () => {
-    if (usernameError) return usernameError;
-    if (emailError) return emailError;
-    if (passwordError) return passwordError;
-    if (confirmPasswordError) return confirmPasswordError;
-    return error;
-  };
-
-  // Check if there's any error globally
-  const isError = error || usernameError || emailError || passwordError || confirmPasswordError;
-
-  // Helper function to add a red border to all input fields if there is an error
-  const getInputContainerStyle = () => {
-    return isError ? [styles.inputContainer, { borderColor: "red" }] : styles.inputContainer;
   };
 
   return (
     <ImageBackground
-      source={require("../assets/background.jpg")}
+      source={require("../assets/background.png")}
       style={styles.backgroundImage}
     >
       <StatusBar barStyle="light-content" backgroundColor="#095e69" />
+
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "null"}
+        behavior={Platform.OS === "ios" ? "padding" : null}
         style={styles.container}
       >
         <ScrollView
@@ -184,126 +97,118 @@ const AffiliateRegistration = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.contentContainer}>
-            <View style={styles.contentWrapper}>
-              {/* Back Button at the top */}
-              <TouchableOpacity
-                style={styles.backButtonContainer}
-                onPress={() => navigation.navigate("CustomerRegistration")}
-              >
-                <Image
-                  source={require("../assets/backlogo.png")} // Back button image
-                  style={styles.backButtonImage}
-                />
+            <Text style={styles.aboveText}>Sign Up</Text>
+            <Text style={styles.mainText}>
+              <Text style={styles.asText}>as </Text>
+              <Text style={styles.affiliateText}>Affiliate</Text>
+            </Text>
+
+            <View style={styles.separator}></View>
+
+            <View style={styles.registerButtonContainer}>
+              <Text style={styles.registerText}>Already have an account? </Text>
+              <TouchableOpacity onPress={handleNavigateToLogin}>
+                <Text style={styles.signUpText}>Login</Text>
               </TouchableOpacity>
+            </View>
 
-              {/* Minimal logo in the upper right */}
-              <Image
-                source={require("../assets/vista-logo.png")} // Logo image
-                style={styles.logoImage}
-              />
-
-              <Text style={styles.aboveText}>Sign Up</Text>
-              <Text style={styles.mainText}>
-                <Text style={styles.asText}>as </Text>
-                <Text style={styles.customerText}>Affiliate</Text>
-              </Text>
-
-              <View style={styles.loginButtonContainer}>
-                <Text style={styles.loginText}>
-                  Already have an Account? Login{" "}
-                </Text>
-                <TouchableOpacity
-                  onPress={handleNavigateToLoginScreen}
-                >
-                  <Text style={styles.signUpText}>here</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Affiliate Type Options */}
-              <View style={styles.affiliateOptionsContainer}>
-                <Text style={styles.affiliateText}>Select Affiliate Type:</Text>
-                <View style={styles.affiliateChoiceButtons}>
+            <View style={styles.formContainer}>
+              <View style={styles.affiliateTypeContainer}>
+                <Text style={styles.placeholder}>Affiliate Type</Text>
+                <View style={styles.radioButtonsContainer}>
                   <TouchableOpacity
-                    style={[
-                      styles.affiliateButton,
-                      affiliateType === "Hotel" && styles.selectedButton,
-                    ]}
+                    style={
+                      affiliateType === "Hotel"
+                        ? styles.selectedRadioButton
+                        : styles.unselectedRadioButton
+                    }
                     onPress={() => setAffiliateType("Hotel")}
                   >
-                    <Text style={styles.affiliateButtonText}>Hotel</Text>
+                    <Text style={styles.radioLabel}>Hotel</Text>
                   </TouchableOpacity>
+
                   <TouchableOpacity
-                    style={[
-                      styles.affiliateButton,
-                      affiliateType === "Resorts" && styles.selectedButton,
-                    ]}
-                    onPress={() => setAffiliateType("Resorts")}
+                    style={
+                      affiliateType === "Resort"
+                        ? styles.selectedRadioButton
+                        : styles.unselectedRadioButton
+                    }
+                    onPress={() => setAffiliateType("Resort")}
                   >
-                    <Text style={styles.affiliateButtonText}>Resorts</Text>
+                    <Text style={styles.radioLabel}>Resort</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              <View style={styles.formContainer}>
-                <View style={getInputContainerStyle()}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.placeholder}>Username</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder=""
+                  onChangeText={(text) => setUsername(text)}
+                  value={username}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.placeholder}>Contact No.</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder=""
+                  onChangeText={(text) => setContactNo(text)}
+                  value={contactNo}
+                  keyboardType="phone-pad"
+                  maxLength={11}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.placeholder}>Email Address</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder=""
+                  onChangeText={(text) => setEmail(text)}
+                  value={email}
+                  autoCapitalize="none"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.placeholder}>Password</Text>
+                <View style={styles.passwordInputContainer}>
                   <TextInput
-                    style={[styles.input, { width: width * 0.8 }]}
-                    placeholder="Enter Username"
-                    value={username}
-                    onChangeText={(text) => setUsername(text)}
+                    style={styles.passInput}
+                    placeholder=""
+                    secureTextEntry={secureTextEntry}
+                    onChangeText={(text) => setPassword(text)}
+                    value={password}
                   />
-                </View>
-                <View style={getInputContainerStyle()}>
-                  <TextInput
-                    style={[styles.input, { width: width * 0.8 }]}
-                    placeholder="Enter Contact Number"
-                    value={contactNo}
-                    onChangeText={(text) => setContactNo(text)}
-                    keyboardType="phone-pad"
-                    maxLength={11}
-                  />
-                </View>
-                <View style={getInputContainerStyle()}>
-                  <TextInput
-                    style={[styles.input, { width: width * 0.8 }]}
-                    placeholder="Enter Email"
-                    value={email}
-                    onChangeText={(text) => setEmail(text)}
-                    autoCapitalize="none"
-                  />
-                </View>
-                <View style={getInputContainerStyle()}>
-                  <View style={styles.passwordInputContainer}>
-                    <TextInput
-                      style={[styles.passInput, { width: width * 0.8 }]}
-                      placeholder="Create Password"
-                      value={password}
-                      onChangeText={(text) => setPassword(text)}
-                      secureTextEntry={secureTextEntry}
-                    />
+                  <View style={styles.eyeIconContainer}>
                     <TouchableOpacity
-                      style={styles.eyeIcon}
                       onPress={() => setSecureTextEntry(!secureTextEntry)}
                     >
                       <Ionicons
                         name={secureTextEntry ? "eye-off" : "eye"}
                         size={24}
-                        color="#333"
+                        color="white"
                       />
                     </TouchableOpacity>
                   </View>
                 </View>
-                <View style={getInputContainerStyle()}>
-                  <View style={styles.passwordInputContainer}>
-                    <TextInput
-                      style={[styles.passInput, { width: width * 0.8 }]}
-                      placeholder="Confirm Password"
-                      value={confirmPassword}
-                      onChangeText={(text) => setConfirmPassword(text)}
-                      secureTextEntry={confirmSecureTextEntry}
-                    />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.placeholder}>Confirm Password</Text>
+                <View style={styles.passwordInputContainer}>
+                  <TextInput
+                    style={styles.passInput}
+                    placeholder=""
+                    secureTextEntry={confirmSecureTextEntry}
+                    onChangeText={(text) => setConfirmPassword(text)}
+                    value={confirmPassword}
+                  />
+                  <View style={styles.eyeIconContainer}>
                     <TouchableOpacity
-                      style={styles.eyeIcon}
                       onPress={() =>
                         setConfirmSecureTextEntry(!confirmSecureTextEntry)
                       }
@@ -311,29 +216,36 @@ const AffiliateRegistration = ({ navigation }) => {
                       <Ionicons
                         name={confirmSecureTextEntry ? "eye-off" : "eye"}
                         size={24}
-                        color="#333"
+                        color="white"
                       />
                     </TouchableOpacity>
                   </View>
                 </View>
+              </View>
 
-                <View style={styles.errorContainer}>
-                  {getErrorMessage() && <Text style={styles.error}>{getErrorMessage()}</Text>}
-                </View>
+              <View style={styles.errorContainer}>
+                {error && <Text style={styles.error}>{error}</Text>}
+              </View>
 
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.registerButton}
-                    onPress={handleRegister}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <ActivityIndicator size="small" color="white" />
-                    ) : (
-                      <Text style={styles.buttonText}>Register</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => navigation.goBack()}
+                >
+                  <Text style={styles.buttonText}>Back</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.registerButton}
+                  onPress={handleAffiliateRegister}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>Register</Text>
+                  )}
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -356,180 +268,176 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: "center",
-  },
-  contentWrapper: {
-    alignItems: "center",
-  },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    zIndex: 1,
-  },
-  backButtonImage: {
-    width: 60,
-    height: 32,
-    top: -20,
-    left: -160,
-    resizeMode: "contain",
-  },
-  logoImage: {
-    position: "absolute",
-    top: -55,
-    right: 10,
-    width: 140,
-    height: 140,
-    resizeMode: "contain",
+    paddingHorizontal: 20,
+    justifyContent: "flex-end",
+    paddingBottom: 20,
   },
   aboveText: {
-    color: "#CBA656",
-    fontSize: 18,
-    marginLeft: -250,
-    marginTop: -10,
+    color: "white",
+    fontSize: 30,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
+    marginBottom: -5,
   },
   mainText: {
-    color: "#4C8C2C",
-    fontSize: 28,
+    fontSize: 35,
     fontWeight: "bold",
-    marginLeft: -100,
+    letterSpacing: 0.5,
   },
   asText: {
-    fontWeight: "normal",
+    color: "white",
   },
-  customerText: {
-    fontWeight: "bold",
-    color: "#0CB695",
+  affiliateText: {
+    color: "#ffc119",
   },
-  loginButtonContainer: {
+  separator: {
+    borderBottomColor: "#ddd",
+    borderBottomWidth: 1,
+    marginVertical: 10,
+    marginHorizontal: 100,
+    right: 100,
+  },
+  registerButtonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 20, // Adjusted to place it naturally in the layout
-    marginBottom: 20, // Space below the text
+    alignItems: "center",
+    marginBottom: 15,
   },
-  loginText: {
-    color: "#262626",
+  registerText: {
+    color: "white",
     fontSize: 14,
-    marginRight: 5,
   },
   signUpText: {
-    color: "#0CB695",
+    color: "white",
     fontSize: 14,
     fontWeight: "bold",
-    textDecorationLine: "underline",
+  },
+  subText: {
+    color: "white",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 20,
   },
   formContainer: {
-    width: width * 0.9,
-    marginTop: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 20,
+    padding: 20,
+  },
+  affiliateTypeContainer: {
+    marginBottom: 15,
+  },
+  radioButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 5,
+    paddingRight: 50,
+  },
+  unselectedRadioButton: {
+    flex: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 5,
+    minWidth: 50,
+  },
+  selectedRadioButton: {
+    flex: 1,
+    backgroundColor: "#6dc072",
+    borderRadius: 15,
+    paddingVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 5,
+    minWidth: 50,
+  },
+  radioLabel: {
+    color: "white",
+    marginLeft: 5,
+    textAlign: "center",
   },
   inputContainer: {
-    marginBottom: 15,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#4C8C2C",
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    height: 50,
-    justifyContent: "center",
+    marginBottom: 5,
+    height: 66,
   },
   placeholder: {
-    color: "#4C8C2C",
+    color: "white",
     fontSize: 14,
     marginBottom: 5,
   },
-  input: {
-    height: 45,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    color: "#262626",
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.5)",
-  },
   passInput: {
     flex: 1,
-    height: 45,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    color: "#262626",
-    fontSize: 16,
+    height: 35,
+    borderColor: "white",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.5)",
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    fontSize: 14,
   },
-  passwordInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  eyeIcon: {
-    marginLeft: 10,
-  },
-  errorContainer: {
-    marginBottom: 10,
-  },
-  error: {
-    color: "#fff",
-    backgroundColor: "#ff4d4d",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    textAlign: "center",
+  input: {
+    height: 35,
+    borderColor: "white",
+    borderWidth: 1,
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
     fontSize: 14,
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 15,
+    justifyContent: "space-around",
+    marginTop: 5,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    textTransform: "uppercase",
+    color: "white",
+    fontSize: 15,
   },
   registerButton: {
-    backgroundColor: "#4C8C2C", 
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: "#088B9C",
+    paddingVertical: 10,
+    borderRadius: 20,
     alignItems: "center",
-    justifyContent: "center",
-    width: width * 0.8, 
+    alignSelf: "center",
+    width: 130,
   },
-  affiliateOptionsContainer: {
-    marginTop: 15,
-    width: width * 0.8,
-    marginBottom: 25,
+  backButton: {
+    backgroundColor: "transparent",
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: "center",
+    alignSelf: "center",
+    width: 130,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderWidth: 1,
   },
-  affiliateText: {
-    color: "#262626",
-    fontSize: 16,
-    marginBottom: 5,
+  error: {
+    color: "white",
+    textAlign: "center",
+    backgroundColor: "#cf2129",
+    padding: 10,
   },
-  affiliateChoiceButtons: {
+  errorContainer: {
+    borderRadius: 10,
+    overflow: "hidden",
+    marginBottom: 10,
+  },
+  passwordInputContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  affiliateButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 10,
     alignItems: "center",
-    justifyContent: "center",
-    width: "48%",
+    marginBottom: 10,
   },
-  affiliateButtonText: {
-    color: "#4C8C2C",
-    fontSize: 16,
-  },
-  selectedButton: {
-    backgroundColor: "#C5DC7C",
+  eyeIconContainer: {
+    padding: 5,
   },
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: "center",
-    paddingBottom: 20,
+    justifyContent: "flex-end",
+  },
+  loadingContainer: {
+    marginTop: 20,
+    alignItems: "center",
   },
 });
 

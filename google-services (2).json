@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "844894233705",
+    "firebase_url": "https://food2go-44539-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "food2go-44539",
+    "storage_bucket": "food2go-44539.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844894233705:android:a3e1f61dfa061819a1eef8",
+        "android_client_info": {
+          "package_name": "com.example.cpton_food2go_admin_web"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG2St4s8g1UZC3p9r16S5kzDoLjkB7X5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844894233705:android:3bdeb8cf759a7076a1eef8",
+        "android_client_info": {
+          "package_name": "com.example.cpton_food2go_rider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG2St4s8g1UZC3p9r16S5kzDoLjkB7X5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844894233705:android:10feccb4723f50e9a1eef8",
+        "android_client_info": {
+          "package_name": "com.example.cpton_food2go_sellers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG2St4s8g1UZC3p9r16S5kzDoLjkB7X5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844894233705:android:641fa3d1f159eea8a1eef8",
+        "android_client_info": {
+          "package_name": "com.example.cpton_foodtogo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG2St4s8g1UZC3p9r16S5kzDoLjkB7X5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844894233705:android:0a77e59d1f12b2cda1eef8",
+        "android_client_info": {
+          "package_name": "com.paww.vistaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG2St4s8g1UZC3p9r16S5kzDoLjkB7X5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
