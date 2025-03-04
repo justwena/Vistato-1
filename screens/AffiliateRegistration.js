@@ -31,34 +31,56 @@ const AffiliateRegistration = ({ navigation }) => {
   const handleAffiliateRegister = async () => {
     try {
       setLoading(true);
-
+      setError(null);
+  
+      // ✅ Check if all fields are filled
       if (!username || !email || !contactNo || !password || !confirmPassword) {
         setError("Please fill in all fields.");
         setLoading(false);
         return;
       }
-
+  
+      // ✅ Ensure username contains only letters (no numbers or special characters)
+      if (!/^[A-Za-z]+$/.test(username)) {
+        setError("Username must contain only letters (no numbers or special characters).");
+        setLoading(false);
+        return;
+      }
+  
+      // ✅ Ensure contact number contains exactly 11 digits
+      if (!/^\d{11}$/.test(contactNo)) {
+        setError("Contact number must be exactly 11 digits.");
+        setLoading(false);
+        return;
+      }
+  
+      // ✅ Ensure email is correctly formatted and ends with "@gmail.com"
+      if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+        setError("Email must be a valid Gmail address (example@gmail.com).");
+        setLoading(false);
+        return;
+      }
+  
+      // ✅ Check if passwords match
       if (password !== confirmPassword) {
         setError("Passwords do not match.");
         setLoading(false);
         return;
       }
-
-      const response = await firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password);
-
+  
+      // ✅ Register the affiliate in Firebase
+      const response = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      
       await firebase.database().ref(`affiliates/${response.user.uid}`).set({
         username,
         contactNo,
         email,
         affiliateType,
       });
-
+  
       console.log("Affiliate registered successfully!", response.user.uid);
-
       setLoading(false);
-
+  
       Alert.alert(
         "Registration Successful",
         "Your account has been successfully registered. Please login to continue.",
@@ -68,25 +90,27 @@ const AffiliateRegistration = ({ navigation }) => {
             onPress: () => navigation.navigate("Login"),
           },
         ],
-        { cancelable: false },
+        { cancelable: false }
       );
     } catch (error) {
-      // console.error("Error registering affiliate:", error.message);
       setLoading(false);
       setError(error.message);
     }
   };
+  
 
-  const handleNavigateToLogin = () => {
-    navigation.navigate("Login");
-  };
+const handleNavigateToLogin = () => {
+  navigation.navigate("Login");
+};
+
 
   return (
     <ImageBackground
-      source={require("../assets/background.png")}
+      source={require("../assets/background.jpg")}
       style={styles.backgroundImage}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#095e69" />
+     <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : null}
@@ -273,7 +297,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   aboveText: {
-    color: "white",
+    color: "#41644A",
     fontSize: 30,
     fontWeight: "bold",
     letterSpacing: 0.5,
@@ -285,13 +309,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   asText: {
-    color: "white",
+    color: "#A4B465",
   },
   affiliateText: {
-    color: "#ffc119",
+    color: "#FFA725",
   },
   separator: {
-    borderBottomColor: "#ddd",
+    borderBottomColor: "#0D4715",
     borderBottomWidth: 1,
     marginVertical: 10,
     marginHorizontal: 100,
@@ -303,13 +327,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   registerText: {
-    color: "white",
+    color: "black",
     fontSize: 14,
   },
   signUpText: {
-    color: "white",
+    color: "#FFA725",
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   subText: {
     color: "white",
@@ -318,7 +342,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   formContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: "rgba(0, 128, 0, 0.34)",
     borderRadius: 20,
     padding: 20,
   },
@@ -333,7 +357,7 @@ const styles = StyleSheet.create({
   },
   unselectedRadioButton: {
     flex: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "#C7DB9C",
     borderWidth: 1,
     borderRadius: 15,
     paddingVertical: 5,
@@ -344,7 +368,7 @@ const styles = StyleSheet.create({
   },
   selectedRadioButton: {
     flex: 1,
-    backgroundColor: "#6dc072",
+    backgroundColor: "#31511E",
     borderRadius: 15,
     paddingVertical: 5,
     alignItems: "center",
@@ -353,7 +377,7 @@ const styles = StyleSheet.create({
     minWidth: 50,
   },
   radioLabel: {
-    color: "white",
+    color: "#fff",
     marginLeft: 5,
     textAlign: "center",
   },
@@ -369,7 +393,7 @@ const styles = StyleSheet.create({
   passInput: {
     flex: 1,
     height: 35,
-    borderColor: "white",
+    borderColor: "#0D4715",
     borderWidth: 1,
     padding: 10,
     backgroundColor: "white",
@@ -378,7 +402,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 35,
-    borderColor: "white",
+    borderColor: "#31511E",
     borderWidth: 1,
     padding: 10,
     backgroundColor: "white",
@@ -395,7 +419,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   registerButton: {
-    backgroundColor: "#088B9C",
+    backgroundColor: "#31511E",
     paddingVertical: 10,
     borderRadius: 20,
     alignItems: "center",

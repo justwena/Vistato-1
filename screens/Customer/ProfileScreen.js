@@ -116,7 +116,7 @@ const ProfileScreen = () => {
                 source={
                   userData?.profilePicture
                     ? { uri: userData.profilePicture }
-                    : require("../../assets/profile-picture.jpg")
+                    : require("../../assets/user.png")
                 }
                 style={styles.profilePicture}
               />
@@ -126,7 +126,7 @@ const ProfileScreen = () => {
                 <View style={styles.customerDataContainer}>
                   <View style={styles.dataRow}>
                     <Ionicons
-                      name="mail"
+                      name="at-outline"
                       size={20}
                       color="#088B9C"
                       style={styles.icon}
@@ -135,7 +135,7 @@ const ProfileScreen = () => {
                   </View>
                   <View style={styles.dataRow}>
                     <Ionicons
-                      name="call"
+                      name="call-outline"
                       size={20}
                       color="#088B9C"
                       style={styles.icon}
@@ -144,7 +144,7 @@ const ProfileScreen = () => {
                   </View>
                   <View style={styles.dataRow}>
                     <Ionicons
-                      name="location"
+                      name="location-outline"
                       size={20}
                       color="#088B9C"
                       style={styles.icon}
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     width: "48%",
   },
   addBookingButton: {
-    backgroundColor: "#088B9C",
+    backgroundColor: "#DF6D14",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

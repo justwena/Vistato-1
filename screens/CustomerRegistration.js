@@ -75,60 +75,82 @@ const CustomerRegistration = ({ navigation }) => {
   const handleRegister = async () => {
     try {
       setLoading(true);
-
+      setError(null);
+      setUsernameError("");
+      setEmailError("");
+      setPasswordError("");
+      setConfirmPasswordError("");
+  
+      // Check if all fields are filled
       if (!username || !contactNo || !email || !password || !confirmPassword) {
         setError("Please fill in all fields.");
         setLoading(false);
         return;
       }
-
+  
+      // ✅ Ensure username contains only letters (no numbers or special characters)
+      if (!/^[A-Za-z\s]+$/.test(username)) {
+        setUsernameError("Username must contain only letters and spaces (no numbers or special characters).");
+        setLoading(false);
+        return;
+      }
+      
+  
+      // ✅ Ensure contact number contains exactly 11 digits
+      if (!/^\d{11}$/.test(contactNo)) {
+        setError("Contact number must be exactly 11 digits.");
+        setLoading(false);
+        return;
+      }
+  
+      // ✅ Ensure email is correctly formatted and ends with "@gmail.com"
+      if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+        setEmailError("Email must be a valid Gmail address (example@gmail.com).");
+        setLoading(false);
+        return;
+      }
+  
+      // Check if passwords match
       if (password !== confirmPassword) {
         setError("Passwords do not match.");
         setLoading(false);
         return;
       }
-
+  
+      // Validate password strength
       if (!validatePassword(password)) {
         setError("Password must be at least 6 characters long and contain both letters and numbers.");
         setLoading(false);
         return;
       }
-
-            // Clear all previous errors
-            setUsernameError("");
-            setEmailError("");
-            setPasswordError("");
-            setConfirmPasswordError("");
-
+  
+      // Check if username already exists
       const usernameExists = await checkUsernameExists(username);
       if (usernameExists) {
-        setUsernameError("Username is not available");
+        setUsernameError("Username is not available.");
         setLoading(false);
         return;
-      } else {
-        setUsernameError(""); 
       }
-
+  
+      // Check if email already exists
       const emailExists = await checkEmailExists(email);
       if (emailExists) {
-        setEmailError("Email already used");
+        setEmailError("Email already used.");
         setLoading(false);
         return;
-      } else {
-        setEmailError(""); 
       }
-
+  
+      // Register the user in Firebase
       const response = await firebase.auth().createUserWithEmailAndPassword(email, password);
       await firebase.database().ref(`customers/${response.user.uid}`).set({
         username,
         contactNo,
         email,
-        password,
       });
-
+  
       console.log("Customer registered successfully!", response.user.uid);
       setLoading(false);
-
+  
       Alert.alert(
         "Registration Successful",
         "Your account has been successfully registered. Please login to continue.",
@@ -138,13 +160,15 @@ const CustomerRegistration = ({ navigation }) => {
             onPress: () => navigation.navigate("Login"),
           },
         ],
-        { cancelable: false },
+        { cancelable: false }
       );
     } catch (error) {
       setLoading(false);
       setError(error.message);
     }
   };
+  
+  
 
   const handleNavigateToAffiliateRegistration = () => {
     navigation.navigate("AffiliateRegistration");
@@ -171,7 +195,8 @@ const CustomerRegistration = ({ navigation }) => {
       source={require("../assets/background.jpg")}
       style={styles.backgroundImage}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#095e69" />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "null"}
         style={styles.container}

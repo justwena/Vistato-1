@@ -24,8 +24,8 @@ const CustomTabBarIcon = ({ route, color, size }) => {
     iconName = require("../../assets/icons/home-icon.png");
   } else if (route.name === "Bookings") {
     iconName = require("../../assets/icons/bookings-icon.png");
-  } else if (route.name === "Saved") {
-    iconName = require("../../assets/icons/saved-icon.png");
+  } else if (route.name === "Favorites") {
+    iconName = require("../../assets/icons/favourite.png");
   } else if (route.name === "Profile") {
     iconName = require("../../assets/icons/profile-icon.png");
   }
@@ -91,7 +91,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           >
             <CustomTabBarIcon
               route={route}
-              color={isFocused ? "#088B9C" : "gray"}
+              color={isFocused ? "#3A7D44" : "gray"}
               size={24}
             />
           </TouchableOpacity>

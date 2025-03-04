@@ -284,7 +284,7 @@ const EditCustomerProfile = () => {
                   source={
                     profilePictureUri
                       ? { uri: profilePictureUri }
-                      : require("../../assets/profile-picture.jpg")
+                      : require("../../assets/user.png")
                   }
                   style={styles.profilePicture}
                 />
@@ -416,12 +416,12 @@ const styles = StyleSheet.create({
   placeholder: {
     color: "#8d8d8d",
     fontSize: 14,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   inputBackground: {
     backgroundColor: "white",
     borderRadius: 20,
-    paddingLeft: 15,
+    padding: 25,
     borderColor: "#b3b3b3",
     borderWidth: 1,
   },

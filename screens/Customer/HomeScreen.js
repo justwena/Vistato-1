@@ -195,7 +195,7 @@ const HomeScreen = () => {
               />
             ) : (
               <Image
-                source={require("../../assets/avatar.jpeg")}
+                source={require("../../assets/image-.png")}
                 style={styles.defaultProfilePicture}
               />
             )}
