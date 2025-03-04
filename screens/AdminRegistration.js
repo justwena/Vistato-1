@@ -29,39 +29,64 @@ const AdminRegistration = ({ navigation }) => {
   const handleRegister = async () => {
     try {
       setLoading(true);
-
+  
+      // Check if all fields are filled
       if (!username || !contactNo || !email || !password || !confirmPassword) {
         setError("Please fill in all fields.");
         setLoading(false);
         return;
       }
-
+  
+      // Validate username (no numbers allowed)
+      if (!/^[A-Za-z\s]+$/.test(username)) {
+        setError("Username must contain only letters and spaces.");
+        setLoading(false);
+        return;
+      }
+  
+      // Validate contact number (must be exactly 10 digits)
+      if (!/^\d{10}$/.test(contactNo)) {
+        setError("Contact number must be exactly 10 digits.");
+        setLoading(false);
+        return;
+      }
+  
+      // Validate email format (must be a valid Gmail address)
+      if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+        setError("Please enter a valid Gmail address.");
+        setLoading(false);
+        return;
+      }
+  
+      // Check if passwords match
       if (password !== confirmPassword) {
         setError("Passwords do not match.");
         setLoading(false);
         return;
       }
-
+  
+      // Register the user in Firebase
       const response = await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password);
-
+  
       await firebase.database().ref(`admins/${response.user.uid}`).set({
         username,
         contactNo,
         email,
         password,
       });
-
-      console.log("Admin registered successfully:", response.key);
+  
+      console.log("Admin registered successfully:", response.user.uid);
       setLoading(false);
       navigation.navigate("AdminHome");
     } catch (error) {
-      // console.error("Error registering admin:", error.message);
+      // Handle errors
       setLoading(false);
       setError(error.message);
     }
   };
+  
 
   return (
     <ImageBackground
