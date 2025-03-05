@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import firebase from "../firebase.js";
 import { getDatabase, ref as dbRef, get } from "firebase/database";
-
+import  WeatherModal  from "./Customer/weather.js"; 
 
 
 const CustomHeader = ({ title, navigation }) => (
@@ -33,7 +33,7 @@ const CustomHeader = ({ title, navigation }) => (
 
 
 
-const ProfileContainer = ({ affiliate, handleAddressPress, handleView360 }) => (
+const ProfileContainer = ({ affiliate, handleAddressPress, handleView360, navigation }) => (
   <View style={styles.profileContainer}>
     <Image
       source={require("../assets/profile-picture.png")}
@@ -50,8 +50,12 @@ const ProfileContainer = ({ affiliate, handleAddressPress, handleView360 }) => (
       />
       <View style={styles.usernameContainer}>
         <Text style={styles.usernameText}>{affiliate.username}</Text>
+        
+        {/* ✅ Now navigation is correctly passed */}
+        <TouchableOpacity onPress={() => navigation.navigate("ChatScreen", { affiliate })}>
+          <Ionicons name="chatbubble-ellipses-outline" size={30} color="black" />
+        </TouchableOpacity>
 
-        {/* New Button to View 360° Image */}
         <TouchableOpacity
           style={styles.view360Button}
           onPress={() => handleView360(affiliate)}
@@ -59,17 +63,12 @@ const ProfileContainer = ({ affiliate, handleAddressPress, handleView360 }) => (
           <Text style={styles.view360ButtonText}>View 360°</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={handleAddressPress}
-        style={styles.addressContainer}
-      >
+
+      <WeatherModal affiliateId={affiliate.affiliateId} />
+
+      <TouchableOpacity onPress={handleAddressPress} style={styles.addressContainer}>
         <View style={styles.dataContainer}>
-          <Ionicons
-            name="location"
-            size={20}
-            color="#088B9C"
-            style={styles.icon}
-          />
+          <Ionicons name="location" size={20} color="#088B9C" style={styles.icon} />
           <Text style={styles.addressText}>
             {affiliate.address || "No address available"}
           </Text>
@@ -77,8 +76,8 @@ const ProfileContainer = ({ affiliate, handleAddressPress, handleView360 }) => (
       </TouchableOpacity>
     </View>
   </View>
-  
 );
+
 
 
 const AffiliateDetailsScreenContent = ({ route, navigation }) => {
@@ -161,38 +160,7 @@ const AffiliateDetailsScreenContent = ({ route, navigation }) => {
       affiliate: affiliate,
     });
   };
-  // const handleView360 = async () => {
-  //   if (!affiliate.affiliateId) {
-  //     Alert.alert("Error", "Affiliate ID is missing.");
-  //     return;
-  //   }
-  
-  //   try {
-  //     const database = getDatabase();
-  //     const dbImageRef = dbRef(database, `affiliates/${affiliate.affiliateId}/360view`);
-  
-  //     const snapshot = await get(dbImageRef);
-  //     if (snapshot.exists()) {
-  //       // const { entrance, seaside, endRoute } = snapshot.val(); // Get all 360° URLs
-  //       const data = snapshot.val();
-  //       console.log("Fetched 360° Data:", data); // Log the full data object
-  
-  //       if (!entrance && !seaside && !endRoute) {
-  //         Alert.alert("No 360° Images", "This affiliate has not uploaded any 360° images yet.");
-  //         return;
-  //       }
-  
-  //       // Navigate and pass all image URLs to the Panorama Viewer
-  //       navigation.navigate("PanoramaViewer", { entrance, seaside, endRoute });
-  //     } else {
-  //       Alert.alert("No 360° Image", "This affiliate has not uploaded a 360° image yet.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching 360° images from database:", error);
-  //     Alert.alert("Error", "Failed to retrieve 360° images.");
-  //   }
-  // };
-  
+
 
   const handleView360 = async () => {
     if (!affiliate.affiliateId) {
@@ -239,11 +207,13 @@ const AffiliateDetailsScreenContent = ({ route, navigation }) => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={true}
       >
-        <ProfileContainer
-          affiliate={affiliate}
-          handleAddressPress={handleAddressPress}
-          handleView360={handleView360} // Pass handleView360 here
-        />
+     <ProfileContainer
+  affiliate={affiliate}
+  handleAddressPress={handleAddressPress}
+  handleView360={handleView360}
+  navigation={navigation} // ✅ Pass navigation here
+/>
+
 
         <View style={styles.descriptionContainer}>
           <Text style={styles.descriptionTitle}>About</Text>
@@ -428,7 +398,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 15,
     borderRadius: 5,
-    marginLeft: 10,
+    marginLeft: 20,
   },
   view360ButtonText: {
     color: "white",
@@ -467,6 +437,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#555",
   },
+  containerweather: { alignItems: "center", margin: 20 },
   facilityImage: {
     width: 80,
     height: 50,

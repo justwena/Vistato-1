@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~4.0.1",
-    "@lightbase/react-native-panorama-view": "^1.0.1",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-clipboard/clipboard": "^1.13.2",
     "@react-native-community/datetimepicker": "8.2.0",

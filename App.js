@@ -36,8 +36,10 @@ import LogsScreen from './screens/affiliate/AffiliateLogsScreen';
 import FacilityReviewsScreen from './screens/affiliate/FacilityReviewsScreen';
 import EditProfileScreen from './screens/affiliate/EditProfileScreen';
 import FacilityBookingScreen from './screens/Customer/FacilityBookingScreen';
-import PanoramaViewer from "../vistato---Copy-2-/screens/PanoramaViewer";
-
+import PanoramaViewer from "./screens/PanoramaViewer";
+import ChatScreen from "./screens/ChatScreen"
+import ChatListScreen  from "./screens/ChatListScreen"
+import AffiliateChatScreen  from "./screens/affiliateChatScreen"
 // guest folder to
 import GuestHome from './screens/guest/GuestHome'; 
 
@@ -203,6 +205,21 @@ const App = () => {
           name="PaymentDetails"
           component={PaymentDetailsScreen}
           options={{ headerShown: false }}
+        />
+            <Stack.Screen
+          name="ChatScreen"
+          component={ChatScreen}
+          options={{ headerShown: true }}
+        />
+            <Stack.Screen
+          name="ChatListScreen"
+          component={ChatListScreen }
+          options={{ headerShown: true }}
+        />
+           <Stack.Screen
+          name="AffiliateChatScreen"
+          component={AffiliateChatScreen }
+          options={{ headerShown: true }}
         />
         
 {/* UNDER ADMINNNNNNNNNNNNNNNNNNNNNNNN FOLDER NA ITO GUYS*/}
