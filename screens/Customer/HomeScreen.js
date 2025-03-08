@@ -306,7 +306,7 @@ const HomeScreen = () => {
               placeholderTextColor="#888"
               onChangeText={handleSearch}
             />
-              <WeatherModal />
+              {/* <WeatherModal /> */}
          
             <View style={styles.searchIconContainer}>
               <Ionicons name="search" size={15} color="#fff" />

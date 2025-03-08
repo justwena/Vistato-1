@@ -18,7 +18,7 @@ import firebase from "../../firebase";
 
 import { getDatabase, ref as dbRef, set } from "firebase/database"; // If using Realtime Database
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) =>  {
   const [facilitiesCount, setFacilitiesCount] = useState(0);
   const [pendingBookingsCount, setPendingBookingsCount] = useState(0);
   const [currentUserAffiliateId, setCurrentUserAffiliateId] = useState("");
@@ -196,6 +196,15 @@ const HomeScreen = () => {
           source={require("../../assets/vista-logo.png")}
           style={styles.headerImage}
         />
+          <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("ChatListScreen", {
+              affiliateId: currentUserAffiliateId,
+            })
+          }
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={28} color="black" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
@@ -289,7 +298,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 20,
     backgroundColor: "white",
