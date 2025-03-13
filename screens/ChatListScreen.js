@@ -5,11 +5,30 @@ import {
   FlatList, 
   Pressable, 
   StyleSheet, 
-  ActivityIndicator 
+  ActivityIndicator, 
+  SafeAreaView, 
+  StatusBar, 
+  TouchableOpacity 
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; // For icons
 import firebase from "../firebase";
+
+const CustomHeader = ({ title }) => {
+  const navigation = useNavigation();
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={'white'} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.title}>{title}</Text>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const ChatListScreen = () => {
   const navigation = useNavigation();
@@ -27,17 +46,23 @@ const ChatListScreen = () => {
   useEffect(() => {
     if (!currentUserId) return;
 
-    const chatRef = firebase.database().ref(`chats/${currentUserId}`);
+    const chatRef = firebase.database().ref("chats");
 
     chatRef.on("value", async (snapshot) => {
       const data = snapshot.val();
       const uniqueUserIds = new Set();
 
       if (data) {
-        Object.values(data).forEach((message) => {
-          if (message.sender !== currentUserId) {
-            uniqueUserIds.add(message.sender);
-          }
+        Object.keys(data).forEach((chatRoomId) => {
+          const messages = data[chatRoomId];
+          Object.values(messages).forEach((message) => {
+            if (message.sender !== currentUserId && chatRoomId.includes(currentUserId)) {
+              uniqueUserIds.add(message.sender);
+            } else if (message.sender === currentUserId) {
+              const otherUserId = chatRoomId.replace(`${currentUserId}_`, "").replace(`_${currentUserId}`, "");
+              uniqueUserIds.add(otherUserId);
+            }
+          });
         });
       }
 
@@ -60,8 +85,7 @@ const ChatListScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Chats</Text>
-
+      <CustomHeader title="Chats" />
       {loading ? (
         <ActivityIndicator size="large" color="#0084FF" style={styles.loader} />
       ) : chatUsers.length === 0 ? (
@@ -76,7 +100,8 @@ const ChatListScreen = () => {
               android_ripple={{ color: "#ddd" }}
               onPress={() => navigation.navigate("AffiliateChatScreen", {
                 currentId: currentUserId,
-                chatPartnerId: item.id, // Send UID for chat functionality
+                chatPartnerId: item.id,
+                chatPartnerName: item.username, // Pass the chat partner's name
               })}
             >
               <View style={styles.avatar}>
@@ -98,11 +123,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9F9F9", 
     padding: 16 
   },
-  header: { 
-    fontSize: 22, 
-    fontWeight: "bold", 
-    marginBottom: 10, 
-    color: "#333" 
+  safeArea: {
+    backgroundColor: 'white',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  title: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   loader: { 
     marginTop: 20 

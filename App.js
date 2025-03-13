@@ -113,7 +113,7 @@ const App = () => {
           component={AffiliateDetailsScreen}
           options={{ headerShown: false }}
         />
-               <Stack.Screen name="PanoramaViewer" component={PanoramaViewer} />
+               <Stack.Screen name="PanoramaViewer" component={PanoramaViewer}      options={{ headerShown: false }}/>
 
 {/* UNDER CUSTOMEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR FOLDER NA ITO GUYS*/}
 
@@ -209,17 +209,17 @@ const App = () => {
             <Stack.Screen
           name="ChatScreen"
           component={ChatScreen}
-          options={{ headerShown: true }}
+          options={{ headerShown: false }}
         />
             <Stack.Screen
           name="ChatListScreen"
           component={ChatListScreen }
-          options={{ headerShown: true }}
+          options={{ headerShown: false }}
         />
            <Stack.Screen
           name="AffiliateChatScreen"
           component={AffiliateChatScreen }
-          options={{ headerShown: true }}
+          options={{ headerShown: false }}
         />
         
 {/* UNDER ADMINNNNNNNNNNNNNNNNNNNNNNNN FOLDER NA ITO GUYS*/}

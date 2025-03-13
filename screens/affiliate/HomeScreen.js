@@ -106,46 +106,9 @@ const HomeScreen = ({ navigation }) =>  {
 
     fetchCurrentUserAffiliateId();
   }, []);
-  const promptForImageUrl = () => {
-    Alert.alert(
-      "How to Upload a 360° View",
-      "1. Upload your 360° panorama on Panoraven\n2. Copy the generated link\n\nClick 'Go to Website' to proceed.",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Go to Website", onPress: () => Linking.openURL("https://panoraven.com/en/share-360-photo") },
-        { text: "OK", onPress: () => setModalVisible(true) }
-      ]
-    );
-  };
 
-  const uploadImageUrls = async () => {
-    if (!entranceUrl || !seasideUrl || !endRouteUrl) {
-      Alert.alert("Error", "All fields must be filled.");
-      return;
-    }
 
-    try {
-      if (!currentUserAffiliateId) {
-        throw new Error("Affiliate ID is missing.");
-      }
 
-      const dbImageRef = dbRef(database, `affiliates/${currentUserAffiliateId}/360view`);
-      await set(dbImageRef, {
-        entrance: entranceUrl,
-        seaside: seasideUrl,
-        endRoute: endRouteUrl,
-      });
-
-      Alert.alert("Success", "360° View links uploaded successfully!");
-      setEntranceUrl("");
-      setSeasideUrl("");
-      setEndRouteUrl("");
-      setModalVisible(false);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      Alert.alert("Error", "Failed to upload the links.");
-    }
-  };
 
   useEffect(() => {
     if (currentUserAffiliateId) {
@@ -254,39 +217,8 @@ const HomeScreen = ({ navigation }) =>  {
           </View>
         )}
       </View>
-      <Button title="Upload 360° View" onPress={promptForImageUrl} />
-      <Modal visible={modalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          <Text style={styles.label}>Entrance URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={entranceUrl}
-            onChangeText={setEntranceUrl}
-            placeholder="Enter entrance view URL"
-          />
 
-          <Text style={styles.label}>Seaside URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={seasideUrl}
-            onChangeText={setSeasideUrl}
-            placeholder="Enter seaside view URL"
-          />
-
-          <Text style={styles.label}>End Route URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={endRouteUrl}
-            onChangeText={setEndRouteUrl}
-            placeholder="Enter end route view URL"
-          />
-  <View style={{ marginTop: 20 }}></View>
-          <Button title="Upload Links" onPress={uploadImageUrls} />
-          <View style={{ marginTop: 10 }}>
-          <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
+  
     </SafeAreaView>
   );
 };

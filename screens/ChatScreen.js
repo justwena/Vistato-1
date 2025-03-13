@@ -9,8 +9,33 @@ const ChatScreen = ({ route }) => {
   const [message, setMessage] = useState("");
   const flatListRef = useRef(null);
 
+  const currentUser = firebase.auth().currentUser;
+  const currentId = currentUser ? currentUser.uid : null;
+  const chatPartnerId = affiliate.affiliateId;
+
+  // Debugging: Log the currentId and chatPartnerId
   useEffect(() => {
-    const chatRef = firebase.database().ref(`chats/${affiliate.affiliateId}`);
+    console.log("currentId:", currentId);
+    console.log("chatPartnerId:", chatPartnerId);
+  }, [currentId, chatPartnerId]);
+
+  // Generate a unique chat room ID based on user IDs
+  const chatRoomId = currentId && chatPartnerId ? (currentId < chatPartnerId ? `${currentId}_${chatPartnerId}` : `${chatPartnerId}_${currentId}`) : null;
+
+  useEffect(() => {
+    if (!currentId || !chatPartnerId) {
+      console.error("Error: currentId or chatPartnerId is undefined");
+      return;
+    }
+
+    if (!chatRoomId) {
+      console.error("Error: chatRoomId is undefined");
+      return;
+    }
+
+    console.log("Fetching messages for chatRoomId:", chatRoomId); // Debugging Log
+
+    const chatRef = firebase.database().ref(`chats/${chatRoomId}`);
     chatRef.on("value", (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -18,36 +43,35 @@ const ChatScreen = ({ route }) => {
         setMessages(sortedMessages);
       }
     });
-  
+
     return () => chatRef.off();
-  }, [affiliate.affiliateId]);
-  
+  }, [chatRoomId]);
 
   const sendMessage = async () => {
     if (message.trim()) {
-      const chatRef = firebase.database().ref(`chats/${affiliate.affiliateId}`);
+      const chatRef = firebase.database().ref(`chats/${chatRoomId}`);
       const currentUser = firebase.auth().currentUser;
-  
+
       if (!currentUser) {
         console.error("No user is logged in.");
         return;
       }
-  
+
       const newMessage = {
         text: message,
         timestamp: Date.now(),
-        sender: currentUser.uid,  // ✅ Set sender ID
+        sender: currentUser.uid, // Set sender ID
       };
-  
+
       await chatRef.push(newMessage);
       setMessage("");
     }
   };
-  
+
   const renderItem = ({ item }) => {
     const currentUser = firebase.auth().currentUser;
     const isCurrentUser = item.sender === currentUser?.uid;
-  
+
     return (
       <View style={[styles.messageContainer, isCurrentUser ? styles.sentMessage : styles.receivedMessage]}>
         <Text style={styles.messageText}>{item.text}</Text>
@@ -55,13 +79,9 @@ const ChatScreen = ({ route }) => {
       </View>
     );
   };
-  
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -71,12 +91,7 @@ const ChatScreen = ({ route }) => {
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
       <View style={styles.inputContainer}>
-        <TextInput
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Type a message..."
-          style={styles.input}
-        />
+        <TextInput value={message} onChangeText={setMessage} placeholder="Type a message..." style={styles.input} />
         <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
           <Ionicons name="send" size={24} color="white" />
         </TouchableOpacity>
@@ -98,11 +113,37 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   sentMessage: {
-    backgroundColor: "#0084FF",
+    backgroundColor: "#bb3e03",
     alignSelf: "flex-end",
+    borderRadius: 20,
+    padding: 10,
+    margin: 5,
+    maxWidth: "75%",
+    alignSelf: "flex-end",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   receivedMessage: {
-    backgroundColor: "#e5e5ea",
+    backgroundColor: "#006d77",
+    borderRadius: 20,
+    padding: 10,
+    margin: 5,
+    maxWidth: "75%",
+    alignSelf: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   messageText: {
     fontSize: 16,
@@ -110,7 +151,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 10,
-    color: "#ddd",
+    color: "#aaa",
     alignSelf: "flex-end",
     marginTop: 5,
   },
@@ -131,7 +172,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   sendButton: {
-    backgroundColor: "#0084FF",
+    backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 50,
   },
