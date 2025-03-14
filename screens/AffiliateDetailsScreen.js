@@ -167,28 +167,23 @@ const AffiliateDetailsScreenContent = ({ route, navigation }) => {
       Alert.alert("Error", "Affiliate ID is missing.");
       return;
     }
-  
+
     try {
       const database = getDatabase();
-      const dbImageRef = dbRef(database, `affiliates/${affiliate.affiliateId}/360view`);
-  
+      const dbImageRef = dbRef(database, `affiliates/${affiliate.affiliateId}/360view/link`);
+
       const snapshot = await get(dbImageRef);
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        console.log("Fetched 360° Data:", data); // Log the full data object
-  
-        const { entrance, seaside, endRoute } = data; // Extract values
-        console.log("Entrance URL:", entrance);
-        console.log("Seaside URL:", seaside);
-        console.log("End Route URL:", endRoute);
-  
-        if (!entrance && !seaside && !endRoute) {
-          Alert.alert("No 360° Images", "This affiliate has not uploaded any 360° images yet.");
+        const link = snapshot.val();
+        console.log("Fetched 360° Start Data:", link);
+
+        if (!link) {
+          Alert.alert("No 360° Image", "This affiliate has not uploaded a 360° image yet.");
           return;
         }
-  
-        // Navigate and pass all image URLs to the Panorama Viewer
-        navigation.navigate("PanoramaViewer", { entrance, seaside, endRoute });
+
+        // Navigate and pass the start image URL to the Panorama Viewer
+        navigation.navigate("PanoramaViewer", { link });
       } else {
         Alert.alert("No 360° Image", "This affiliate has not uploaded a 360° image yet.");
       }
@@ -398,7 +393,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 15,
     borderRadius: 5,
-    marginLeft: 20,
+    marginLeft: 30,
+    position: "relative",
   },
   view360ButtonText: {
     color: "white",

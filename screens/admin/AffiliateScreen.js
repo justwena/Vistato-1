@@ -34,6 +34,7 @@ const AffiliateScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('Resort');
+  const [view360Links, setView360Links] = useState({});
 
   useEffect(() => {
     const fetchAffiliates = async () => {
@@ -155,6 +156,26 @@ const sendBillReminder = async (affiliateId) => {
   }
 };
 
+const handleUpload360View = async (affiliateId) => {
+  const link = view360Links[affiliateId];
+  if (!link) {
+    Alert.alert('Error', 'Please enter a valid 360 view link.');
+    return;
+  }
+
+  try {
+    await firebase.database().ref(`affiliates/${affiliateId}/360view`).set({
+      link,
+    });
+
+    Alert.alert('Success', '360 view link uploaded successfully!');
+    setView360Links((prevLinks) => ({ ...prevLinks, [affiliateId]: '' }));
+  } catch (error) {
+    console.error('Error uploading 360 view link:', error);
+    Alert.alert('Error', 'Failed to upload 360 view link. Please try again later.');
+  }
+};
+
   const filteredAffiliates = affiliates.filter(affiliate =>
     affiliate.username.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (!filter || affiliate.affiliateType === filter)
@@ -216,36 +237,55 @@ const sendBillReminder = async (affiliateId) => {
           data={filteredAffiliates}
           renderItem={({ item }) => {
             return (
-              <TouchableOpacity
-                style={styles.affiliateItem}
-                onPress={() => {
-                  if (item.subscriptions && item.subscriptions.length > 0) {
-                    setSelectedSubscription(item.subscriptions[0]);
-                    setIsModalVisible(true);
-                  } else {
-                    Alert.alert('No Subscriptions', 'This affiliate has no subscriptions.');
-                  }
-                }}
-              >
-                {item.profilePicture ? (
-                  <Image source={{ uri: item.profilePicture }} style={styles.profilePicture} />
-                ) : (
-                  <Ionicons name="person-circle-outline" size={50} color="#ccc" />
-                )}
-                <View style={styles.affiliateDetails}>
-                  <View style={styles.usernameContainer}>
-                    <Text style={styles.affiliateName}>{item.username}</Text>
-                    {item.subscriptions && item.subscriptions.length > 0 && (
-                      <View style={styles.notificationCircle} />
-                    )}
+              <View style={styles.affiliateItem}>
+                <TouchableOpacity
+                  style={styles.affiliateDetailsContainer}
+                  onPress={() => {
+                    if (item.subscriptions && item.subscriptions.length > 0) {
+                      setSelectedSubscription(item.subscriptions[0]);
+                      setIsModalVisible(true);
+                    } else {
+                      Alert.alert('No Subscriptions', 'This affiliate has no subscriptions.');
+                    }
+                  }}
+                >
+                  {item.profilePicture ? (
+                    <Image source={{ uri: item.profilePicture }} style={styles.profilePicture} />
+                  ) : (
+                    <Ionicons name="person-circle-outline" size={50} color="#ccc" />
+                  )}
+                  <View style={styles.affiliateDetails}>
+                    <View style={styles.usernameContainer}>
+                      <Text style={styles.affiliateName}>{item.username}</Text>
+                      {item.subscriptions && item.subscriptions.length > 0 && (
+                        <View style={styles.notificationCircle} />
+                      )}
+                    </View>
+                    <Text style={styles.affiliateContact}>{item.contactNo}</Text>
+                    <Text style={styles.affiliateEmail}>{item.email}</Text>
                   </View>
-                  <Text style={styles.affiliateContact}>{item.contactNo}</Text>
-                  <Text style={styles.affiliateEmail}>{item.email}</Text>
-                </View>
-                <TouchableOpacity style={styles.billButton} onPress={() => handleSendBillReminder(item.affiliateId, item)}>
-                  <Ionicons name="receipt" size={24} color="#088B9C" />
                 </TouchableOpacity>
-              </TouchableOpacity>
+                <View style={styles.actionsContainer}>
+                  {!item.affiliate360view ? (
+                    <>
+                      <TextInput
+                        style={styles.linkInput}
+                        placeholder="Enter 360 view link"
+                        value={view360Links[item.affiliateId] || ''}
+                        onChangeText={(text) => setView360Links((prevLinks) => ({ ...prevLinks, [item.affiliateId]: text }))}
+                      />
+                      <TouchableOpacity style={styles.uploadButton} onPress={() => handleUpload360View(item.affiliateId)}>
+                        <Ionicons name="cloud-upload-outline" size={24} color="#088B9C" />
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <Text>360 view link uploaded</Text>
+                  )}
+                  <TouchableOpacity style={styles.billButton} onPress={() => handleSendBillReminder(item.affiliateId, item)}>
+                    <Ionicons name="receipt" size={24} color="#088B9C" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             );
           }}   
           keyExtractor={(item) => item.username}
@@ -290,13 +330,14 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   affiliateItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 10,
     backgroundColor: 'white',
     padding: 15,
     borderRadius: 10,
+  },
+  affiliateDetailsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   profilePicture: {
     width: 50,
@@ -385,6 +426,30 @@ const styles = StyleSheet.create({
   },
   inactiveFilterButtonText: {
     color: 'black',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  linkInput: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
+    marginRight: 10,
+  },
+  billButton: {
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#f0f0f0',
+    marginRight: 10,
+  },
+  uploadButton: {
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#f0f0f0',
   },
 });
 

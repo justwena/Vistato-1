@@ -17,7 +17,7 @@ import {
 import firebase from "../../firebase";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import  WeatherModal  from "../Customer/weather"; // Adjust the path if needed
+
 
 const HomeScreen = () => {
   const [affiliateAccounts, setAffiliateAccounts] = useState([]);
@@ -33,9 +33,6 @@ const HomeScreen = () => {
   const [showMessage, setShowMessage] = useState(false);
   const messageOpacity = useRef(new Animated.Value(1)).current;
   const isFocused = useIsFocused();
-
-
-  
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
@@ -84,7 +81,7 @@ const HomeScreen = () => {
           key: key,
         }));
         setUnregisteredBookings(
-          bookingsArray.filter((booking) => !booking.customerID),
+          bookingsArray.filter((booking) => !booking.customerID)
         );
 
         bookingsArray.forEach((booking) => {
@@ -101,7 +98,7 @@ const HomeScreen = () => {
                     return booking;
                   }
                   return prevBooking;
-                }),
+                })
               );
             })
             .catch((error) => {
@@ -267,7 +264,6 @@ const HomeScreen = () => {
         return "#000";
     }
   };
-  
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
@@ -277,51 +273,29 @@ const HomeScreen = () => {
       month: "short",
       day: "numeric",
     });
-
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
-      
       <StatusBar barStyle="dark-content" backgroundColor={"white"} />
-   
       <View style={styles.container}>
-     
         <View style={styles.header}>
-  
           <Image
             source={require("../../assets/vista-logo.png")}
-            
             style={styles.headerImage}
-            
           />
-          
-       
           <View style={styles.searchContainer}>
-            
             <TextInput
               style={styles.searchInput}
               placeholder="Search..."
               placeholderTextColor="#888"
               onChangeText={handleSearch}
             />
-              {/* <WeatherModal /> */}
-         
             <View style={styles.searchIconContainer}>
               <Ionicons name="search" size={15} color="#fff" />
-              
             </View>
-          
-      
           </View>
-          
- 
         </View>
-        
-   
-   
-
         <ScrollView>
           <View style={styles.flatListContainer}>
             <View style={styles.filterContainer}>
@@ -332,7 +306,6 @@ const HomeScreen = () => {
                 ]}
                 onPress={() => setFilter("Resort")}
               >
-               
                 <Text
                   style={[
                     styles.filterButtonText,
@@ -361,7 +334,6 @@ const HomeScreen = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-
             <View style={styles.affiliateFlatListContainer}>
               {loading ? (
                 <View style={styles.loadingContainer}>
@@ -369,7 +341,7 @@ const HomeScreen = () => {
                 </View>
               ) : affiliateAccounts.length === 0 ||
                 affiliateAccounts.filter(
-                  (item) => item.affiliateType === filter,
+                  (item) => item.affiliateType === filter
                 ).length === 0 ? (
                 <View style={styles.centeredMessageContainer}>
                   <Ionicons name="warning" size={50} color="#FF6347" />
@@ -388,7 +360,6 @@ const HomeScreen = () => {
           </View>
         </ScrollView>
       </View>
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -413,9 +384,7 @@ const HomeScreen = () => {
                 />
                 <Ionicons name="search" size={20} color="#888" />
               </View>
-            
             </TouchableOpacity>
-           
             {showBookings && (
               <ScrollView style={styles.scrollContainer}>
                 <View>
@@ -429,7 +398,7 @@ const HomeScreen = () => {
                             "approved",
                             "checked-in",
                             "checked-out",
-                          ].includes(booking.status),
+                          ].includes(booking.status)
                       )
                       .map((booking) => (
                         <View key={booking.id} style={styles.bookingItem}>
@@ -593,7 +562,6 @@ const HomeScreen = () => {
                           </View>
                         </View>
                       ))}
-            
                 </View>
               </ScrollView>
             )}
@@ -603,6 +571,7 @@ const HomeScreen = () => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -626,7 +595,6 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
-    right: 40,
     alignItems: "center",
     justifyContent: "space-between",
     width: "80%",
