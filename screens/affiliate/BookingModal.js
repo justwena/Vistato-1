@@ -74,6 +74,7 @@ const BookingModal = ({ visible, onClose, booking, status, affiliateId }) => {
     });
   };
 
+  
   const handleDecline = async () => {
     try {
       Alert.alert(

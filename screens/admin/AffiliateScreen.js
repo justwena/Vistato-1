@@ -10,13 +10,14 @@ import {
   Alert, 
   ActivityIndicator, 
   Image, 
-  TextInput 
+  TextInput,
+  KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import firebase from '../../firebase';
 import SubscriptionModal from './SubscriptionModal';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 const CustomHeader = ({ title }) => (
   <SafeAreaView style={styles.safeArea}>
     <StatusBar barStyle="dark-content" backgroundColor={'white'} />
@@ -130,6 +131,7 @@ const AffiliateScreen = () => {
       await firebase.database().ref(`nosubscription/${affiliateId}`).set({
         disabledAt: firebase.database.ServerValue.TIMESTAMP
       });
+       await firebase.database().ref(`affiliates/${affiliateId}`).remove();
   
       Alert.alert('Success', 'Affiliate disabled successfully!');
     } catch (error) {
@@ -198,121 +200,133 @@ const handleUpload360View = async (affiliateId) => {
   };
 
   return (
-    <View style={styles.container}>
-      <CustomHeader title="Affiliates" />
-
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search..."
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-          />
-        </View>
-      </View>
-
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-            style={[
-              styles.filterButton,
-              filter === 'Resort' ? styles.activeFilterButton : styles.inactiveFilterButton,
-            ]}
-            onPress={() => handleFilterChange('Resort')}
-          >
-            <Text style={filter === 'Resort' ? styles.activeFilterButtonText : styles.inactiveFilterButtonText}>
-              Resorts
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              filter === 'Hotel' ? styles.activeFilterButton : styles.inactiveFilterButton,
-            ]}
-            onPress={() => handleFilterChange('Hotel')}
-          >
-            <Text style={filter === 'Hotel' ? styles.activeFilterButtonText : styles.inactiveFilterButtonText}>
-              Hotels
-            </Text>
-          </TouchableOpacity>
-      </View>
-      
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#088B9C" />
-        </View>
-      ) : (
-        <FlatList
-  style={styles.affiliateContainer}
-  contentContainerStyle={{ paddingBottom: 10 }}
-  data={filteredAffiliates}
-  renderItem={({ item }) => {
-    return (
-      <View style={styles.affiliateItem}>
-        <TouchableOpacity
-          style={styles.affiliateDetailsContainer}
-          onPress={() => {
-            if (item.subscriptions && item.subscriptions.length > 0) {
-              setSelectedSubscription(item.subscriptions[0]);
-              setIsModalVisible(true);
-            } else {
-              Alert.alert('No Subscriptions', 'This affiliate has no subscriptions.');
-            }
-          }}
-        >
-          {item.profilePicture ? (
-            <Image source={{ uri: item.profilePicture }} style={styles.profilePicture} />
-          ) : (
-            <Ionicons name="person-circle-outline" size={50} color="#ccc" />
-          )}
-          <View style={styles.affiliateDetails}>
-            <View style={styles.usernameContainer}>
-              <Text style={styles.affiliateName}>{item.username}</Text>
-              {item.subscriptions && item.subscriptions.length > 0 && (
-                <View style={styles.notificationCircle} />
-              )}
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={styles.container}>
+            <CustomHeader title="Affiliates" />
+  
+            {/* SEARCH BAR */}
+            <View style={styles.searchContainer}>
+              <View style={styles.searchBar}>
+                <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search..."
+                  onChangeText={setSearchQuery}
+                  value={searchQuery}
+                />
+              </View>
             </View>
-            <Text style={styles.affiliateContact}>{item.contactNo}</Text>
-            <Text style={styles.affiliateEmail}>{item.email}</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.actionsContainer}>
-          {!item.affiliate360view ? (
-            <>
-              <TextInput
-                style={styles.linkInput}
-                placeholder="Enter 360 view link"
-                value={view360Links[item.affiliateId] || ''}
-                onChangeText={(text) => setView360Links((prevLinks) => ({ ...prevLinks, [item.affiliateId]: text }))}
-              />
-              <TouchableOpacity style={styles.uploadButton} onPress={() => handleUpload360View(item.affiliateId)}>
-                <Ionicons name="cloud-upload-outline" size={24} color="#088B9C" />
+  
+            {/* FILTER BUTTONS */}
+            <View style={styles.filterContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  filter === 'Resort' ? styles.activeFilterButton : styles.inactiveFilterButton,
+                ]}
+                onPress={() => handleFilterChange('Resort')}
+              >
+                <Text style={filter === 'Resort' ? styles.activeFilterButtonText : styles.inactiveFilterButtonText}>
+                  Resorts
+                </Text>
               </TouchableOpacity>
-            </>
-          ) : (
-            <Text>360 view link uploaded</Text>
-          )}
-          <TouchableOpacity style={styles.billButton} onPress={() => handleSendBillReminder(item.affiliateId, item)}>
-            <Ionicons name="receipt" size={24} color="#088B9C" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.disableButton} onPress={() => handleDisableAffiliate(item.affiliateId)}>
-            <Ionicons name="close-circle-outline" size={24} color="red" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }}
-  keyExtractor={(item) => item.username}
-/>
-      )}
-      <SubscriptionModal
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        subscription={selectedSubscription}
-        subscriptionId={selectedSubscription ? selectedSubscription.id : null}
-      />
-    </View>
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  filter === 'Hotel' ? styles.activeFilterButton : styles.inactiveFilterButton,
+                ]}
+                onPress={() => handleFilterChange('Hotel')}
+              >
+                <Text style={filter === 'Hotel' ? styles.activeFilterButtonText : styles.inactiveFilterButtonText}>
+                  Hotels
+                </Text>
+              </TouchableOpacity>
+            </View>
+  
+            {/* LIST OR LOADING INDICATOR */}
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#088B9C" />
+              </View>
+            ) : (
+              <FlatList
+                data={filteredAffiliates}
+                renderItem={({ item }) => (
+                  <View style={styles.affiliateItem}>
+                    <TouchableOpacity
+                      style={styles.affiliateDetailsContainer}
+                      onPress={() => {
+                        if (item.subscriptions && item.subscriptions.length > 0) {
+                          setSelectedSubscription(item.subscriptions[0]);
+                          setIsModalVisible(true);
+                        } else {
+                          Alert.alert('No Subscriptions', 'This affiliate has no subscriptions.');
+                        }
+                      }}
+                    >
+                      {item.profilePicture ? (
+                        <Image source={{ uri: item.profilePicture }} style={styles.profilePicture} />
+                      ) : (
+                        <Ionicons name="person-circle-outline" size={50} color="#ccc" />
+                      )}
+                      <View style={styles.affiliateDetails}>
+                        <View style={styles.usernameContainer}>
+                          <Text style={styles.affiliateName}>{item.username}</Text>
+                          {item.subscriptions && item.subscriptions.length > 0 && (
+                            <View style={styles.notificationCircle} />
+                          )}
+                        </View>
+                        <Text style={styles.affiliateContact}>{item.contactNo}</Text>
+                        <Text style={styles.affiliateEmail}>{item.email}</Text>
+                      </View>
+                    </TouchableOpacity>
+  
+                    {/* ACTION BUTTONS */}
+                    <View style={styles.actionsContainer}>
+                      {!item.affiliate360view ? (
+                        <>
+                          <TextInput
+                            style={styles.linkInput}
+                            placeholder="Enter 360 view link"
+                            value={view360Links[item.affiliateId] || ''}
+                            onChangeText={(text) =>
+                              setView360Links((prevLinks) => ({ ...prevLinks, [item.affiliateId]: text }))
+                            }
+                          />
+                          <TouchableOpacity style={styles.uploadButton} onPress={() => handleUpload360View(item.affiliateId)}>
+                            <Ionicons name="cloud-upload-outline" size={24} color="#088B9C" />
+                          </TouchableOpacity>
+                        </>
+                      ) : (
+                        <Text>360 view link uploaded</Text>
+                      )}
+                      <TouchableOpacity style={styles.billButton} onPress={() => handleSendBillReminder(item.affiliateId, item)}>
+                        <Ionicons name="receipt" size={24} color="#088B9C" />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.disableButton} onPress={() => handleDisableAffiliate(item.affiliateId)}>
+                        <Ionicons name="close-circle-outline" size={24} color="red" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+                keyExtractor={(item) => item.username}
+                keyboardShouldPersistTaps="handled"
+              />
+            )}
+  
+            {/* MODAL */}
+            <SubscriptionModal
+              visible={isModalVisible}
+              onClose={() => setIsModalVisible(false)}
+              subscription={selectedSubscription}
+              subscriptionId={selectedSubscription ? selectedSubscription.id : null}
+            />
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

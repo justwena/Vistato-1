@@ -87,7 +87,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           >
             <CustomTabBarIcon
               route={route}
-              color={isFocused ? "#088B9C" : "gray"}
+              color={isFocused ? "#00B4D8" : "#3066BE"}
               size={24}
             />
           </TouchableOpacity>

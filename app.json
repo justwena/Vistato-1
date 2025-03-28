@@ -24,6 +24,11 @@
     },
     "web": {
       "favicon": "./assets/vista-white.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c9731b13-2ef3-4e55-985f-68b23b121392"
+      }
     }
   }
 }

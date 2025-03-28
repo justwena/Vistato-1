@@ -157,7 +157,7 @@ const BookingModal = ({
           <Ionicons
             name={i <= rating ? "star" : "star-outline"}
             size={24}
-            color={i <= rating ? "#f8c102" : "#bec2c5"}
+            color={i <= rating ? "#f8c102" : "#5be2cc"}
           />
         </TouchableOpacity>,
       );

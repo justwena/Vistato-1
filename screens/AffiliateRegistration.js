@@ -17,7 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import firebase from "../firebase";
 
 const AffiliateRegistration = ({ navigation }) => {
-  const [affiliateType, setAffiliateType] = useState("hotel");
+  const [affiliateType, setAffiliateType] = useState(""); // Initially empty
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [contactNo, setContactNo] = useState("");
@@ -34,8 +34,8 @@ const AffiliateRegistration = ({ navigation }) => {
       setError(null);
   
       // ✅ Check if all fields are filled
-      if (!username || !email || !contactNo || !password || !confirmPassword) {
-        setError("Please fill in all fields.");
+      if (!username || !email || !contactNo || !password || !confirmPassword || !affiliateType) {
+        setError("Please fill in all fields, including selecting your Affiliate Type.");
         setLoading(false);
         return;
       }
@@ -97,20 +97,17 @@ const AffiliateRegistration = ({ navigation }) => {
       setError(error.message);
     }
   };
-  
 
-const handleNavigateToLogin = () => {
-  navigation.navigate("Login");
-};
-
+  const handleNavigateToLogin = () => {
+    navigation.navigate("Login");
+  };
 
   return (
     <ImageBackground
       source={require("../assets/background.jpg")}
       style={styles.backgroundImage}
     >
-     <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : null}
@@ -162,6 +159,9 @@ const handleNavigateToLogin = () => {
                     <Text style={styles.radioLabel}>Resort</Text>
                   </TouchableOpacity>
                 </View>
+                {affiliateType === "" && (
+                  <Text style={styles.errorText}></Text>
+                )}
               </View>
 
               <View style={styles.inputContainer}>
@@ -380,6 +380,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginLeft: 5,
     textAlign: "center",
+  },
+  errorText: {
+    color: "#ff0000",
+    fontSize: 12,
+    marginTop: 5,
   },
   inputContainer: {
     marginBottom: 5,

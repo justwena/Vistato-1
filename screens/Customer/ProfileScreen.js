@@ -126,7 +126,7 @@ const ProfileScreen = () => {
                 <View style={styles.customerDataContainer}>
                   <View style={styles.dataRow}>
                     <Ionicons
-                      name="at-outline"
+                      name="mail"
                       size={20}
                       color="#088B9C"
                       style={styles.icon}
@@ -135,7 +135,7 @@ const ProfileScreen = () => {
                   </View>
                   <View style={styles.dataRow}>
                     <Ionicons
-                      name="call-outline"
+                      name="call"
                       size={20}
                       color="#088B9C"
                       style={styles.icon}
@@ -144,7 +144,7 @@ const ProfileScreen = () => {
                   </View>
                   <View style={styles.dataRow}>
                     <Ionicons
-                      name="location-outline"
+                      name="location"
                       size={20}
                       color="#088B9C"
                       style={styles.icon}
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     width: "48%",
   },
   addBookingButton: {
-    backgroundColor: "#DF6D14",
+    backgroundColor: "#088B9C",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

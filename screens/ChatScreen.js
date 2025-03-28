@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import firebase from "../firebase";
 import { Ionicons } from "@expo/vector-icons";
 
 const ChatScreen = ({ route }) => {
+  const navigation = useNavigation();
   const { affiliate } = route.params;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
@@ -13,13 +15,11 @@ const ChatScreen = ({ route }) => {
   const currentId = currentUser ? currentUser.uid : null;
   const chatPartnerId = affiliate.affiliateId;
 
-  // Debugging: Log the currentId and chatPartnerId
   useEffect(() => {
     console.log("currentId:", currentId);
     console.log("chatPartnerId:", chatPartnerId);
   }, [currentId, chatPartnerId]);
 
-  // Generate a unique chat room ID based on user IDs
   const chatRoomId = currentId && chatPartnerId ? (currentId < chatPartnerId ? `${currentId}_${chatPartnerId}` : `${chatPartnerId}_${currentId}`) : null;
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const ChatScreen = ({ route }) => {
       return;
     }
 
-    console.log("Fetching messages for chatRoomId:", chatRoomId); // Debugging Log
+    console.log("Fetching messages for chatRoomId:", chatRoomId);
 
     const chatRef = firebase.database().ref(`chats/${chatRoomId}`);
     chatRef.on("value", (snapshot) => {
@@ -50,8 +50,6 @@ const ChatScreen = ({ route }) => {
   const sendMessage = async () => {
     if (message.trim()) {
       const chatRef = firebase.database().ref(`chats/${chatRoomId}`);
-      const currentUser = firebase.auth().currentUser;
-
       if (!currentUser) {
         console.error("No user is logged in.");
         return;
@@ -60,7 +58,7 @@ const ChatScreen = ({ route }) => {
       const newMessage = {
         text: message,
         timestamp: Date.now(),
-        sender: currentUser.uid, // Set sender ID
+        sender: currentUser.uid,
       };
 
       await chatRef.push(newMessage);
@@ -69,9 +67,7 @@ const ChatScreen = ({ route }) => {
   };
 
   const renderItem = ({ item }) => {
-    const currentUser = firebase.auth().currentUser;
     const isCurrentUser = item.sender === currentUser?.uid;
-
     return (
       <View style={[styles.messageContainer, isCurrentUser ? styles.sentMessage : styles.receivedMessage]}>
         <Text style={styles.messageText}>{item.text}</Text>
@@ -82,6 +78,12 @@ const ChatScreen = ({ route }) => {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{affiliate.username}</Text>
+      </View>
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -105,6 +107,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f4f4f4",
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "#007bff",
+  },
+  headerTitle: {
+    fontSize: 18,
+    color: "white",
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
   messageContainer: {
     padding: 10,
     marginVertical: 5,
@@ -119,12 +133,8 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 5,
     maxWidth: "75%",
-    alignSelf: "flex-end",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
@@ -137,10 +147,7 @@ const styles = StyleSheet.create({
     maxWidth: "75%",
     alignSelf: "flex-start",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,

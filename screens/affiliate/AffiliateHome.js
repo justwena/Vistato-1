@@ -84,7 +84,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           >
             <CustomTabBarIcon
               route={route}
-              color={isFocused ? "#283618" : "#606c38"}
+              color={isFocused ? "#00B4D8" : "#3066BE"}
               size={24}
             />
           </TouchableOpacity>
@@ -191,12 +191,11 @@ const styles = StyleSheet.create({
   },
   tabBarContainer: {
     flexDirection: "row",
-    backgroundColor: "#fefae0",
+    backgroundColor: "#FFFAFA",
     paddingTop: 10,
     paddingBottom: 20,
     justifyContent: "space-around",
-    borderTopColor: "#dda15e",
-    borderTopWidth: 1,
+    
   },
   tabBarItem: {
     flex: 1,

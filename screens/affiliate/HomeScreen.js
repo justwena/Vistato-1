@@ -122,10 +122,9 @@ const HomeScreen = ({ navigation }) =>  {
         const currentUser = firebase.auth().currentUser;
         if (currentUser) {
           const userId = currentUser.uid;
-          const billRemindersRef = firebase
-            .database()
-            .ref(`billReminders/${userId}`);
-          billRemindersRef.on("value", (snapshot) => {
+          const billRemindersRef = firebase.database().ref(`billReminders/${userId}`);
+  
+          const listener = billRemindersRef.on("value", (snapshot) => {
             const remindersData = snapshot.val();
             if (remindersData) {
               const latestReminder = Object.values(remindersData)[0];
@@ -138,23 +137,26 @@ const HomeScreen = ({ navigation }) =>  {
               setBillReminder(null);
             }
           });
+  
+          return () => billRemindersRef.off("value", listener);
         }
       } catch (error) {
         console.error("Error fetching bill reminder:", error);
       }
     };
-
+  
     fetchBillReminder();
 
     return () => {
       firebase.database().ref("billReminders").off("value");
     };
   }, []);
+  
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={"white"} />
-      <View style={styles.header}>
+      <View style={styles.header}>  
         <Image
           source={require("../../assets/vista-logo.png")}
           style={styles.headerImage}
@@ -178,12 +180,12 @@ const HomeScreen = ({ navigation }) =>  {
           <View style={styles.touchableContent}>
             <View style={styles.textContainer}>
               <Text style={styles.touchableText}>{pendingBookingsCount}</Text>
-              <Text style={styles.subText}>Pending Bookings</Text>
+              <Text style={styles.subText}>PENDING BOOKINGS</Text>
             </View>
             <Image
               source={require("../../assets/icons/bookings-icon.png")}
               style={styles.icon}
-              tintColor={"#4ab550"}
+              tintColor={"#FFF4E8"}
             />
           </View>
     
@@ -201,10 +203,12 @@ const HomeScreen = ({ navigation }) =>  {
             <Image
               source={require("../../assets/icons/facilities-icon.png")}
               style={styles.icon}
-              tintColor={"#d74e4e"}
+              tintColor={"#FFF4E8"}
             />
           </View>
+          
         </TouchableOpacity>
+        
         {billReminder && (
           <View style={styles.billReminderContainer}>
             <Ionicons
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     width: 120,
-    height: 30,
+    height: 39,
   },
   content: {
     flex: 1,
@@ -281,10 +285,10 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   firstTouchableOpacity: {
-    backgroundColor: "#6dc072",
+    backgroundColor: "#0077B6",
   },
   secondTouchableOpacity: {
-    backgroundColor: "#e25f5f",
+    backgroundColor: "#00B4D8",
   },
   thirdTouchableOpacity: {
     backgroundColor: "#ffc46b",
@@ -296,6 +300,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
+    justifyContent: "space-between",
   },
   billReminderIcon: {
     marginRight: 10,
@@ -303,6 +308,7 @@ const styles = StyleSheet.create({
   billReminderText: {
     fontSize: 16,
     color: "black",
+    flex: 1,
   },
 });
 

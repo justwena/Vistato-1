@@ -93,6 +93,12 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        
+        buildscript {
+    dependencies {
+        classpath 'com.google.gms:google-services:4.3.10' // Check for the latest version
+    }
+}
     }
     signingConfigs {
         debug {

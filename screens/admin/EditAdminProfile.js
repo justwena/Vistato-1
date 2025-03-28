@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   input: {
-    flex: 1,
+ 
     fontSize: 15,
   },
 });

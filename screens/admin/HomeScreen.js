@@ -69,7 +69,7 @@ const HomeScreen = () => {
       <StatusBar barStyle="dark-content" backgroundColor={"white"} />
       <View style={styles.header}>
         <Image
-          source={require("../../assets/vista.png")}
+          source={require("../../assets/vista-logo.png")}
           style={styles.headerImage}
         />
       </View>
@@ -82,12 +82,12 @@ const HomeScreen = () => {
           <View style={styles.touchableContent}>
             <View style={styles.textContainer}>
               <Text style={styles.touchableText}>{hotelAffiliatesCount}</Text>
-              <Text style={styles.subText}>Hotels</Text>
+              <Text style={styles.subText}>HOTELS</Text>
             </View>
             <Image
               source={require("../../assets/icons/hotel-icon.png")}
               style={styles.icon}
-              tintColor={"#4ab550"}
+              tintColor={"#FFF4E8"}
             />
           </View>
         </TouchableOpacity>
@@ -99,12 +99,12 @@ const HomeScreen = () => {
           <View style={styles.touchableContent}>
             <View style={styles.textContainer}>
               <Text style={styles.touchableText}>{resortAffiliatesCount}</Text>
-              <Text style={styles.subText}>Resorts</Text>
+              <Text style={styles.subText}>RESORTS</Text>
             </View>
             <Image
               source={require("../../assets/icons/resort-icon.png")}
               style={styles.icon}
-              tintColor={"#d74e4e"}
+              tintColor={"#FFF4E8"}
             />
           </View>
         </TouchableOpacity>
@@ -118,9 +118,9 @@ const HomeScreen = () => {
               <Text style={styles.touchableText}>
                 {pendingSubscriptionsCount}
               </Text>
-              <Text style={styles.subText}>Pending Subscriptions</Text>
+              <Text style={styles.subText}>PENDING SUBSCRIPTIONS</Text>
             </View>
-            <Ionicons name="receipt" size={50} color={"#edae50"} />
+            <Ionicons name="receipt" size={40} color={"#FFF4E8"} />
           </View>
         </TouchableOpacity>
       </View>
@@ -132,17 +132,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+ header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 20,
     backgroundColor: "white",
   },
   headerImage: {
     width: 120,
-    height: 30,
+    height: 39,
   },
   content: {
     flex: 1,
@@ -175,18 +175,18 @@ const styles = StyleSheet.create({
     color: "white",
   },
   icon: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     resizeMode: "contain",
   },
   firstTouchableOpacity: {
-    backgroundColor: "#6dc072",
+    backgroundColor: "#0077B6",
   },
   secondTouchableOpacity: {
-    backgroundColor: "#e25f5f",
+    backgroundColor: "#00B4D8",
   },
   thirdTouchableOpacity: {
-    backgroundColor: "#ffc46b",
+    backgroundColor: "#64B5F6",
   },
 });
 

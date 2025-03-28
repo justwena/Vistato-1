@@ -18,6 +18,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import firebase from "../../firebase.js";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const SubscriptionHeader = ({ onBackPress }) => (
   <View style={styles.header}>
@@ -249,6 +250,7 @@ const AffiliateSubscriptionScreen = () => {
         });
   
         await firebase.database().ref(`nosubscription/${affiliateId}`).remove();
+        await firebase.database().ref(`billReminders/${affiliateId}`).remove();
   
         setReminder("");
   
@@ -284,99 +286,133 @@ const AffiliateSubscriptionScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <SubscriptionHeader onBackPress={() => navigation.goBack()} />
-
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#088b9c" />
-          </View>
-        ) : (
-          <ScrollView contentContainerStyle={styles.contentContainer}>
-            <View style={styles.paymentDetails}>
-              <View style={styles.paymentLogoContainer}>
-                <Image
-                  source={require("../../assets/gcash-logo.png")}
-                  style={styles.paymentLogo}
-                />
-              </View>
-              <View style={styles.paymentDetailsTextContainer}>
-                <Text style={styles.paymentDetailsLabel}>
-                  Admin GCash Account:
-                </Text>
-                <Text style={styles.paymentDetailsValue}>
-                  {gcashAccountName}
-                </Text>
-                <Text style={styles.paymentDetailsValue}>
-                  {gcashAccountNumber}
-                </Text>
-              </View>
-
-              <View style={styles.paymentDetailsTextContainer}>
-                <Text style={styles.paymentDetailsLabel}>Reference No.:</Text>
+ 
+  
+    <KeyboardAwareScrollView
+    extraScrollHeight={100} 
+    enableOnAndroid={true}
+    keyboardShouldPersistTaps="handled"
+    contentContainerStyle={{ flexGrow: 1 }}
+  >
+          <View style={styles.container}>
+            <CustomHeader title="Affiliates" />
+    
+            <View style={styles.searchContainer}>
+              <View style={styles.searchBar}>
+                <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
                 <TextInput
-                  style={styles.paymentDetailsInput}
-                  placeholder="Enter Reference No."
-                  onChangeText={setReferenceNumber}
-                  keyboardType="numeric"
-                  value={referenceNumber}
-                  maxLength={13}
+                  style={styles.searchInput}
+                  placeholder="Search..."
+                  onChangeText={setSearchQuery}
+                  value={searchQuery}
                 />
               </View>
-
-              <View style={styles.paymentDetailsTextContainer}>
-                <Text style={styles.paymentDetailsLabel}>Amount Paid:</Text>
-                <TextInput
-                  style={styles.paymentDetailsInput}
-                  placeholder="Enter amount paid"
-                  onChangeText={setAmountPaid}
-                  keyboardType="numeric"
-                  value={amountPaid}
-                />
-              </View>
-
+            </View>
+    
+            <View style={styles.filterContainer}>
               <TouchableOpacity
-                style={[
-                  styles.saveButton,
-                  {
-                    backgroundColor:
-                      !referenceNumber || !amountPaid || isSaving
-                        ? "#d3d3d3"
-                        : "#088b9c",
-                  },
-                ]}
-                onPress={handleSaveSubscription}
-                disabled={!referenceNumber || !amountPaid || isSaving}
-              >
-                {isSaving ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text style={styles.saveButtonText}>Subscribe</Text>
-                )}
+                  style={[
+                    styles.filterButton,
+                    filter === 'Resort' ? styles.activeFilterButton : styles.inactiveFilterButton,
+                  ]}
+                  onPress={() => handleFilterChange('Resort')}
+                >
+                  <Text style={filter === 'Resort' ? styles.activeFilterButtonText : styles.inactiveFilterButtonText}>
+                    Resorts
+                  </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    filter === 'Hotel' ? styles.activeFilterButton : styles.inactiveFilterButton,
+                  ]}
+                  onPress={() => handleFilterChange('Hotel')}
+                >
+                  <Text style={filter === 'Hotel' ? styles.activeFilterButtonText : styles.inactiveFilterButtonText}>
+                    Hotels
+                  </Text>
               </TouchableOpacity>
             </View>
-
-            {reminder ? (
-              <View style={styles.reminderContainer}>
-                <Text style={styles.reminderLabel}>Reminder:</Text>
-                <Text style={styles.reminderMessage}>{reminder}</Text>
+    
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#088B9C" />
               </View>
-            ) : null}
-
-            {subscriptionData && subscriptionData.length > 0 && (
-              <View style={styles.subscriptionContainer}>
-                {renderSubscriptionData()}
-              </View>
+            ) : (
+              <FlatList
+                      keyboardShouldPersistTaps="handled"
+                      contentContainerStyle={{ paddingBottom: 20 }}
+                
+                data={filteredAffiliates}
+                renderItem={({ item }) => {
+                  return (
+                    <View style={styles.affiliateItem}>
+                      <TouchableOpacity
+                        style={styles.affiliateDetailsContainer}
+                        onPress={() => {
+                          if (item.subscriptions && item.subscriptions.length > 0) {
+                            setSelectedSubscription(item.subscriptions[0]);
+                            setIsModalVisible(true);
+                          } else {
+                            Alert.alert('No Subscriptions', 'This affiliate has no subscriptions.');
+                          }
+                        }}
+                      >
+                        {item.profilePicture ? (
+                          <Image source={{ uri: item.profilePicture }} style={styles.profilePicture} />
+                        ) : (
+                          <Ionicons name="person-circle-outline" size={50} color="#ccc" />
+                        )}
+                        <View style={styles.affiliateDetails}>
+                          <View style={styles.usernameContainer}>
+                            <Text style={styles.affiliateName}>{item.username}</Text>
+                            {item.subscriptions && item.subscriptions.length > 0 && (
+                              <View style={styles.notificationCircle} />
+                            )}
+                          </View>
+                          <Text style={styles.affiliateContact}>{item.contactNo}</Text>
+                          <Text style={styles.affiliateEmail}>{item.email}</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <View style={styles.actionsContainer}>
+                        {!item.affiliate360view ? (
+                          <>
+                            <TextInput
+                              style={styles.linkInput}
+                              placeholder="360 view links"
+                              value={view360Links[item.affiliateId] || ''}
+                              onChangeText={(text) => setView360Links((prevLinks) => ({ ...prevLinks, [item.affiliateId]: text }))}
+                            />
+                            <TouchableOpacity style={styles.uploadButton} onPress={() => handleUpload360View(item.affiliateId)}>
+                              <Ionicons name="cloud-upload-outline" size={24} color="#088B9C" />
+                            </TouchableOpacity>
+                          </>
+                        ) : (
+                          <Text>360 view link uploaded</Text>
+                        )}
+                        <TouchableOpacity style={styles.billButton} onPress={() => handleSendBillReminder(item.affiliateId, item)}>
+                          <Ionicons name="receipt" size={24} color="#088B9C" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.disableButton} onPress={() => handleDisableAffiliate(item.affiliateId)}>
+                          <Ionicons name="close-circle-outline" size={24} color="red" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                }}
+                keyExtractor={(item) => item.username}
+              />
             )}
-          </ScrollView>
-        )}
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+            <SubscriptionModal
+              visible={isModalVisible}
+              onClose={() => setIsModalVisible(false)}
+              subscription={selectedSubscription}
+              subscriptionId={selectedSubscription ? selectedSubscription.id : null}
+            />
+          </View>
+          </KeyboardAwareScrollView>
+
+
   );
 };
 

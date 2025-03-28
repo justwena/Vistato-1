@@ -92,7 +92,7 @@ const AmenityBookingScreen = ({ route, navigation }) => {
     if (!user) {
       Alert.alert(
         "Login Required",
-        "You need to sign in to add this facility to favorites.",
+        "You need to sign in to add this facility to qwe.",
         [{ text: "OK" }],
         { cancelable: false },
       );
@@ -376,7 +376,15 @@ const AmenityBookingScreen = ({ route, navigation }) => {
 
   const handleBooking = () => {
     const user = firebase.auth().currentUser;
-  
+    if (!user) {
+        Alert.alert(
+          "Login Required",
+          "You need to sign in to book this facility.",
+          [{ text: "OK" }],
+          { cancelable: false },
+        );
+        return;
+      }
     if (!user) {
       if (!username) {
         Alert.alert("Oops!", "Please enter your full name.");

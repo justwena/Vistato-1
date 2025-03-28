@@ -322,7 +322,7 @@ const HomeScreen = () => {
                     filter === "Resort" && styles.activeFilterButtonText,
                   ]}
                 >
-                  Resorts
+                  RESORTS
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -340,7 +340,7 @@ const HomeScreen = () => {
                     filter === "Hotel" && styles.activeFilterButtonText,
                   ]}
                 >
-                  Hotels
+                  HOTEL
                 </Text>
               </TouchableOpacity>
             </View>
@@ -595,18 +595,20 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "column",
     backgroundColor: "white",
-    padding: 10,
+    padding: 15,
     alignItems: "center",
+    
   },
   headerImage: {
+    right: 110,
     width: 120,
-    height: 30,
+    height: 39,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "80%",
+    width: "100%",
     height: 50,
     backgroundColor: "#f2f2f2",
     borderRadius: 25,
