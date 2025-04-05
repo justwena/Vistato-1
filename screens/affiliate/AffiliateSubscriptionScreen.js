@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
   StatusBar,
+  CustomHeader,
   SafeAreaView,
   KeyboardAvoidingView,
   ActivityIndicator,
